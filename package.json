@@ -1,0 +1,23 @@
+{
+    "name": "online-class-express",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon index"
+    },
+    "author": "ahikmah",
+    "license": "ISC",
+    "devDependencies": {
+        "eslint": "^7.23.0",
+        "nodemon": "^2.0.7"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^8.2.0",
+        "express": "^4.17.1",
+        "md5": "^2.3.0",
+        "mysql": "^2.18.1"
+    }
+}
