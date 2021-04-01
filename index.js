@@ -5,10 +5,10 @@ const cors = require('cors');
 const Router = require('./src/routers/router');
 const app = express();
 
-app.use(cors());
-
 const jsonParser = express.json();
 const urlEncodedParser = express.urlencoded({ extended: false });
+
+app.use(cors());
 
 app.use(jsonParser);
 app.use(urlEncodedParser);

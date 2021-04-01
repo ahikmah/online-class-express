@@ -1,11 +1,4 @@
-const express = require('express');
 const Router = require('express').Router();
-
-const jsonParser = express.json();
-const urlEncodedParser = express.urlencoded({ extended: false });
-
-Router.use(jsonParser);
-Router.use(urlEncodedParser);
 
 const {
     getAllCourse,

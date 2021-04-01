@@ -12,7 +12,7 @@ const {
 // const express = require('express');
 
 // GET ALL USER
-// Router.get('/', getAllUsers);
+Router.get('/', getAllUsers);
 
 Router.post('/login', loginUser);
 
