@@ -1,18 +1,35 @@
 const userModel = require('../models/users');
 const { writeResponse, writeError } = require('../helper/response');
 
-const getAllUsers = (req, res) => {
-    const query = req.query;
+const registerUser = (req, res) => {
+    const data = { ...req.body };
     userModel
-        .getAllUsers(query.sort)
+        .registerUser(data)
         .then((result) => {
-            const headers = {
-                'Access-Control-Allow-Origin': '*',
-            };
-            writeResponse(res, headers, 200, result);
+            if (result === 1) {
+                response = {
+                    success: true,
+                    message: 'Your account has been successfully registered',
+                };
+                res.status(201).json(response);
+            } else if (result === -1) {
+                response = {
+                    success: false,
+                    conflict: 'username',
+                    message: 'Username is already taken',
+                };
+                res.status(409).json(response);
+            } else if (result === 0) {
+                response = {
+                    success: false,
+                    conflict: 'email',
+                    message: 'Email is already taken',
+                };
+                res.status(409).json(response);
+            }
         })
         .catch((err) => {
-            writeError(res, 500, err);
+            writeError(res, 400, err);
         });
 };
 
@@ -25,6 +42,7 @@ const loginUser = (req, res) => {
                 response = {
                     success: true,
                     message: 'Login success',
+                    role: result[0].role === 1 ? 'facilitator' : 'student',
                 };
                 res.status(200).json(response);
             } else if (!result) {
@@ -32,47 +50,8 @@ const loginUser = (req, res) => {
                     success: false,
                     message: 'Username or Password is wrong',
                 };
-                res.status(200).json(response);
+                res.status(401).json(response);
             }
-        })
-        .catch((err) => {
-            writeError(res, 500, err);
-        });
-};
-
-const getUserRoleById = (req, res) => {
-    const role = req.params.id;
-    let role_id;
-    if (role === 'instructors') role_id = '1';
-    if (role === 'students') role_id = '2';
-    userModel
-        .getUserRoleById(role_id)
-        .then((result) => {
-            writeResponse(res, null, 200, result);
-        })
-        .catch((err) => {
-            writeError(res, 500, err);
-        });
-};
-
-const createUser = (req, res) => {
-    const data = { ...req.body };
-    userModel
-        .createUser(data)
-        .then((result) => {
-            writeResponse(res, null, 200, result);
-        })
-        .catch((err) => {
-            writeError(res, 304, err);
-        });
-};
-
-const getUserById = (req, res) => {
-    const idUser = req.params.id;
-    userModel
-        .getUserById(idUser)
-        .then((result) => {
-            writeResponse(res, null, 200, result);
         })
         .catch((err) => {
             writeError(res, 500, err);
@@ -92,10 +71,10 @@ const updateUserById = (req, res) => {
         });
 };
 
-const deleteUserById = (req, res) => {
+const getUserById = (req, res) => {
     const idUser = req.params.id;
     userModel
-        .deleteUserById(idUser)
+        .getUserById(idUser)
         .then((result) => {
             writeResponse(res, null, 200, result);
         })
@@ -105,11 +84,8 @@ const deleteUserById = (req, res) => {
 };
 
 module.exports = {
-    getAllUsers,
-    getUserRoleById,
-    createUser,
-    getUserById,
-    updateUserById,
-    deleteUserById,
+    registerUser,
     loginUser,
+    updateUserById,
+    getUserById,
 };

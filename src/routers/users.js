@@ -1,33 +1,21 @@
 const Router = require('express').Router();
 const {
-    getAllUsers,
-    getUserRoleById,
-    createUser,
-    getUserById,
-    updateUserById,
-    deleteUserById,
+    registerUser,
     loginUser,
+    updateUserById,
+    getUserById,
 } = require('../handlers/users');
 
-// const express = require('express');
+// REGISTER USER
+Router.post('/', registerUser);
 
-// GET ALL USER
-Router.get('/', getAllUsers);
-
+// LOGIN
 Router.post('/login', loginUser);
 
-// Router.get('/role/:id', getUserRoleById);
+// UPDATE USER BY ID
+Router.patch('/:id', updateUserById);
 
-// CREATE USER
-Router.post('/', createUser);
-
-// READ SINGLE USER
-// Router.get('/:id', getUserById);
-
-// UPDATE USER
-Router.put('/:id', updateUserById);
-
-// DELETE USER
-// Router.delete('/:id', deleteUserById);
+// GET USER BY ID
+Router.get('/:id', getUserById);
 
 module.exports = Router;
