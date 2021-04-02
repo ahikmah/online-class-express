@@ -117,35 +117,79 @@ const submitScore = (data, id) => {
     });
 };
 
-const filterCourse = (category, level, price) => {
+const filterCourse = (search, category, level, price) => {
     qs = `SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id `;
 
-    if (category && !level && !price) {
+    if (search && !category && !level && !price) {
+        qs = qs + `WHERE cr.name LIKE ?`;
+        data = '%' + search + '%';
+    } else if (!search && category && !level && !price) {
         qs = qs + `WHERE ct.name = ? `;
         data = category;
-    } else if (level && !category && !price) {
+    } else if (!search && level && !category && !price) {
         qs = qs + `WHERE cr.level = ? `;
         data = level;
-    } else if (price && !category && !level) {
+    } else if (!search && price && !category && !level) {
         qs = qs + `WHERE cr.price ? 0 `;
         data = price === 'free' ? mysql.raw('=') : mysql.raw('>');
-    } else if (category && level && !price) {
+    } else if (!search && category && level && !price) {
         qs = qs + `WHERE ct.name = ? && cr.level = ?`;
         data = [category, level];
-    } else if (category && price && !level) {
+    } else if (!search && category && price && !level) {
         qs = qs + `WHERE ct.name = ? && cr.price ? 0`;
         data = [category, price === 'free' ? mysql.raw('=') : mysql.raw('>')];
-    } else if (level && price && !category) {
+    } else if (!search && level && price && !category) {
         qs = qs + `WHERE cr.level = ?  && cr.price ? 0`;
         data = [level, price === 'free' ? mysql.raw('=') : mysql.raw('>')];
-    } else if (category && level && price) {
+    } else if (!search && category && level && price) {
         qs = qs + `WHERE ct.name = ? && cr.level = ?  && cr.price ? 0`;
         data = [
             category,
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
         ];
+    } else if (search && category && !level && !price) {
+        qs = qs + `WHERE cr.name LIKE ? && ct.name= ?`;
+        data = ['%' + search + '%', category];
+    } else if (search && !category && level && !price) {
+        qs = qs + `WHERE cr.name LIKE ? && cr.level= ?`;
+        data = ['%' + search + '%', level];
+    } else if (search && !category && !level && price) {
+        qs = qs + `WHERE cr.name LIKE ? && cr.price ?0`;
+        data = [
+            '%' + search + '%',
+            price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+        ];
+    } else if (search && category && level && !price) {
+        qs = qs + `WHERE cr.name LIKE ? && ct.name=? && cr.level=?`;
+        data = ['%' + search + '%', category, level];
+    } else if (search && category && !level && price) {
+        qs = qs + `WHERE cr.name LIKE ? && ct.name=? && cr.price?0`;
+        data = [
+            '%' + search + '%',
+            category,
+            price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+        ];
+    } else if (search && !category && level && price) {
+        qs = qs + `WHERE cr.name LIKE ? && cr.level=? && cr.price?0`;
+        data = [
+            '%' + search + '%',
+            level,
+            price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+        ];
+    } else if (search && category && level && price) {
+        qs =
+            qs + `WHERE cr.name LIKE ? && ct.name=? &&cr.level=? && cr.price?0`;
+        data = [
+            '%' + search + '%',
+            category,
+            level,
+            price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+        ];
+    } else {
+        data = null;
     }
+    console.log(qs, search, category, level);
 
     return new Promise((resolve, reject) => {
         dbMysql.query(qs, data, (err, result) => {

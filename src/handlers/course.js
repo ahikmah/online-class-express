@@ -24,12 +24,13 @@ const searchCourseAndSort = (req, res) => {
 };
 
 const filterCourse = (req, res) => {
+    const search = req.query.q;
     const category = req.query.category;
     const level = req.query.level;
     const price = req.query.price;
 
     courseModel
-        .filterCourse(category, level, price)
+        .filterCourse(search, category, level, price)
         .then((result) => {
             writeResponse(res, null, 200, result);
         })
