@@ -1,26 +1,28 @@
 const Router = require('express').Router();
 
 const {
-    getAllCourse,
     searchCourseAndSort,
     getCourseCategory,
     createNewCourse,
     registerCourse,
     submitScore,
+    filterCourse,
 } = require('../handlers/course');
 
-Router.get('/', getAllCourse);
-
-Router.get('/search', searchCourseAndSort);
-
-Router.get('/categories', getCourseCategory);
+// GET ALL COURSE, SEARCHING, SORTING
+Router.get('/', searchCourseAndSort);
 
 // CREATE NEW COURSE
-Router.post('/new', createNewCourse); // endpoint gapake new
+Router.post('/', createNewCourse);
+
+// FILTER COURSE
+Router.get('/filter', filterCourse);
+
+Router.get('/categories', getCourseCategory);
 
 // REGISTER COURSE
 Router.post('/register', registerCourse);
 
-Router.put('/scoring/:id', submitScore);
+Router.patch('/scoring/:id', submitScore);
 
 module.exports = Router;

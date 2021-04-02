@@ -3,8 +3,8 @@ const mysql = require('mysql');
 
 const getAllCourse = (query) => {
     const qs = query
-        ? "SELECT cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id ?"
-        : "SELECT cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id";
+        ? "SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id ?"
+        : "SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id";
 
     const sort = ['ORDER BY'];
 
@@ -34,8 +34,8 @@ const getAllCourse = (query) => {
 const searchCourseAndSort = (query, search) => {
     const sort = ['ORDER BY'];
     const qs = query
-        ? `SELECT cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id WHERE cr.name LIKE ?  or ct.name LIKE ? ? `
-        : `SELECT cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id WHERE cr.name LIKE ?  or ct.name LIKE ?`;
+        ? `SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id WHERE cr.name LIKE ?  or ct.name LIKE ? ? `
+        : `SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id WHERE cr.name LIKE ?  or ct.name LIKE ?`;
     if (query) {
         const order = query.split('-');
         if (order[0] === 'category') sort.push('ct.name');
@@ -117,6 +117,47 @@ const submitScore = (data, id) => {
     });
 };
 
+const filterCourse = (category, level, price) => {
+    qs = `SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id `;
+
+    if (category && !level && !price) {
+        qs = qs + `WHERE ct.name = ? `;
+        data = category;
+    } else if (level && !category && !price) {
+        qs = qs + `WHERE cr.level = ? `;
+        data = level;
+    } else if (price && !category && !level) {
+        qs = qs + `WHERE cr.price ? 0 `;
+        data = price === 'free' ? mysql.raw('=') : mysql.raw('>');
+    } else if (category && level && !price) {
+        qs = qs + `WHERE ct.name = ? && cr.level = ?`;
+        data = [category, level];
+    } else if (category && price && !level) {
+        qs = qs + `WHERE ct.name = ? && cr.price ? 0`;
+        data = [category, price === 'free' ? mysql.raw('=') : mysql.raw('>')];
+    } else if (level && price && !category) {
+        qs = qs + `WHERE cr.level = ?  && cr.price ? 0`;
+        data = [level, price === 'free' ? mysql.raw('=') : mysql.raw('>')];
+    } else if (category && level && price) {
+        qs = qs + `WHERE ct.name = ? && cr.level = ?  && cr.price ? 0`;
+        data = [
+            category,
+            level,
+            price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+        ];
+    }
+
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, data, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
 module.exports = {
     getAllCourse,
     searchCourseAndSort,
@@ -124,4 +165,5 @@ module.exports = {
     createNewCourse,
     registerCourse,
     submitScore,
+    filterCourse,
 };

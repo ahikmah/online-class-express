@@ -1,24 +1,35 @@
 const courseModel = require('../models/course');
 const { writeResponse, writeError } = require('../helper/response');
 
-const getAllCourse = (req, res) => {
-    const query = req.query.sort;
-
-    courseModel
-        .getAllCourse(query)
-        .then((result) => {
-            writeResponse(res, null, 200, result);
-        })
-        .catch((err) => {
-            writeError(res, 500, err);
-        });
-};
-
 const searchCourseAndSort = (req, res) => {
     const query = req.query.sort;
     const search = '%' + req.query.q + '%';
+    search === '%undefined%'
+        ? courseModel
+              .getAllCourse(query)
+              .then((result) => {
+                  writeResponse(res, null, 200, result);
+              })
+              .catch((err) => {
+                  writeError(res, 500, err);
+              })
+        : courseModel
+              .searchCourseAndSort(query, search)
+              .then((result) => {
+                  writeResponse(res, null, 200, result);
+              })
+              .catch((err) => {
+                  writeError(res, 500, err);
+              });
+};
+
+const filterCourse = (req, res) => {
+    const category = req.query.category;
+    const level = req.query.level;
+    const price = req.query.price;
+
     courseModel
-        .searchCourseAndSort(query, search)
+        .filterCourse(category, level, price)
         .then((result) => {
             writeResponse(res, null, 200, result);
         })
@@ -78,10 +89,10 @@ const submitScore = (req, res) => {
 };
 
 module.exports = {
-    getAllCourse,
     searchCourseAndSort,
     getCourseCategory,
     createNewCourse,
     registerCourse,
+    filterCourse,
     submitScore,
 };
