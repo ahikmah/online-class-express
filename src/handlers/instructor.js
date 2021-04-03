@@ -37,8 +37,24 @@ const getMyCourse = (req, res) => {
             writeError(res, 500, err);
         });
 };
+
+const getMySchedule = (req, res) => {
+    const idUser = req.params.id;
+    const day = req.query.day;
+
+    instructorModel
+        .getMySchedule(idUser, day)
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, 500, err);
+        });
+};
+
 module.exports = {
     getMemberProgress,
     getSpesificMemberProgress,
     getMyCourse,
+    getMySchedule,
 };

@@ -28,11 +28,13 @@ const getMyClassByIdUser = (idUser) => {
     });
 };
 
-const getAllSchedule = (idUser) => {
-    const qs = `SELECT 
-	c.name course_name, c.start_time AS time, concat(TIMESTAMPDIFF(MINUTE, c.start_time, c.end_time), ' minutes') AS duration FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN student_chapter_progress p ON sc.id = p.student_course_id JOIN course_chapters cc ON cc.id = p.course_chapter_id JOIN courses c ON cc.courses_id = c.id WHERE u.id=? GROUP BY c.name`;
+const getAllSchedule = (idUser, day) => {
+    const qs = day
+        ? `SELECT c.id, c.name course_name, c.start_time AS time, concat(TIMESTAMPDIFF(MINUTE, c.start_time, c.end_time), ' minutes') AS duration FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses c ON c.id= sc.course_id WHERE u.id=? && DATE_FORMAT(c.schedule, '%W')=? GROUP BY c.name ORDER BY time`
+        : `SELECT c.id, c.name course_name, c.start_time AS time, concat(TIMESTAMPDIFF(MINUTE, c.start_time, c.end_time), ' minutes') AS duration FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses c ON c.id= sc.course_id WHERE u.id=? GROUP BY c.name ORDER BY time`;
+
     return new Promise((resolve, reject) => {
-        dbMysql.query(qs, idUser, (err, result) => {
+        dbMysql.query(qs, day ? [idUser, day] : idUser, (err, result) => {
             if (err) {
                 reject(err);
             } else {

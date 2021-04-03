@@ -25,8 +25,10 @@ const getMyClassByIdUser = (req, res) => {
 
 const getAllSchedule = (req, res) => {
     const idUser = req.params.id;
+    const day = req.query.day;
+
     studentModel
-        .getAllSchedule(idUser)
+        .getAllSchedule(idUser, day)
         .then((result) => {
             writeResponse(res, null, 200, result);
         })

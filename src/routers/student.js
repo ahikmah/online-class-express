@@ -9,6 +9,7 @@ const {
 
 Router.get('/myclass/:id', getMyClassByIdUser);
 
-Router.get('/dashboard/all-schedule/:id', getAllSchedule);
+Router.get('/all-schedule/:id', getAllSchedule);
+// Router.get('/my-schedule/:id', getAllSchedule);
 
 module.exports = Router;
