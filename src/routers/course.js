@@ -7,6 +7,7 @@ const {
     registerCourse,
     submitScore,
     filterCourse,
+    getCourseDetail,
 } = require('../handlers/course');
 
 // GET ALL COURSE, SEARCHING, SORTING
@@ -18,11 +19,12 @@ Router.post('/', createNewCourse);
 // FILTER COURSE
 Router.get('/filter', filterCourse);
 
-Router.get('/categories', getCourseCategory);
-
 // REGISTER COURSE
 Router.post('/register', registerCourse);
 
 Router.patch('/scoring/:id', submitScore);
 
+Router.get('/categories', getCourseCategory);
+
+Router.get('/detail/:id', getCourseDetail);
 module.exports = Router;

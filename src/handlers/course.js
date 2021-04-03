@@ -89,6 +89,18 @@ const submitScore = (req, res) => {
     console.log(data);
 };
 
+const getCourseDetail = (req, res) => {
+    const idCourse = req.params.id;
+    courseModel
+        .getCourseDetail(idCourse)
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, 500, err);
+        });
+};
+
 module.exports = {
     searchCourseAndSort,
     getCourseCategory,
@@ -96,4 +108,5 @@ module.exports = {
     registerCourse,
     filterCourse,
     submitScore,
+    getCourseDetail,
 };

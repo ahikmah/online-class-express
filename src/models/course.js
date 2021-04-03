@@ -189,10 +189,26 @@ const filterCourse = (search, category, level, price) => {
     } else {
         data = null;
     }
-    console.log(qs, search, category, level);
 
     return new Promise((resolve, reject) => {
         dbMysql.query(qs, data, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+const getCourseDetail = (idCourse) => {
+    const qs = `SELECT c.id, c.name as course_name, CASE WHEN c.level = 1 THEN 'Beginner'
+    WHEN c.level = 2 THEN 'Intermediate' WHEN c.level = 3 THEN 'Advance'
+    END AS 'level', ct.name as category, IF(c.price>0,concat('$',c.price),'Free') as price,
+    c.description, c.objectives, c.requirements FROM courses c JOIN categories ct ON c.category_id = ct.id
+    WHERE c.id=?`;
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, idCourse, (err, result) => {
             if (err) {
                 reject(err);
             } else {
@@ -210,4 +226,5 @@ module.exports = {
     registerCourse,
     submitScore,
     filterCourse,
+    getCourseDetail,
 };
