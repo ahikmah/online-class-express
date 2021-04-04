@@ -9,13 +9,13 @@ const {
 // REGISTER USER
 Router.post('/', registerUser);
 
-// LOGIN
-Router.post('/login', loginUser);
-
 // UPDATE USER BY ID
 Router.patch('/:id', updateUserById);
 
 // GET USER BY ID
 Router.get('/:id', getUserById);
+
+// LOGIN
+Router.post('/login', loginUser);
 
 module.exports = Router;

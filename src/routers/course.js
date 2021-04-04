@@ -27,4 +27,5 @@ Router.patch('/scoring/:id', submitScore);
 Router.get('/categories', getCourseCategory);
 
 Router.get('/detail/:id', getCourseDetail);
+
 module.exports = Router;

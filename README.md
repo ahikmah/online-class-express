@@ -1,1 +1,36 @@
-# online-class-express
+# Online Class Rest API
+
+This service is arranged into resources, such as users and course. Each resource can be operated on by using different HTTP methods such as such as GET, POST, PATCH, and DELETE.
+
+### Tech Stack
+
+-   [Node JS](https://nodejs.org/en/)
+-   [Express JS](https://expressjs.com/)
+-   [My SQL](https://www.mysql.com/)
+
+### URI Summary
+
+The following table summarises all the available resource URIs, and the effect of each method on them
+
+| Resource                                                                                        | GET                                                                                  | POST                                         | PATCH                                                                      | DELETE |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------- | -------------------------------------------------------------------------- | ------ |
+| `/data/users`                                                                                   | -                                                                                    | Register a new user                          | -                                                                          | -      |
+| `/data/users/{id}`                                                                              | Get user by ID                                                                       | -                                            | Update user by ID                                                          | -      |
+| `/data/users/login`                                                                             | -                                                                                    | Login using username (or email) and password | -                                                                          | -      |
+| `/data/instructor/my-course/{id}`                                                               | Get instructor's course list by Instructor ID                                        | -                                            | -                                                                          | -      |
+| `/data/instructor/my-schedule/{id}`                                                             | Get instructor's schedule by Instructor ID                                           | -                                            | -                                                                          | -      |
+| `/data/instructor/member-progress/{course}/{user}`                                              | Get student progrss by course ID and student ID                                      | -                                            | -                                                                          | -      |
+| `/data/instructor/member-progress/{course}/{user}`                                              | Get student progrss by course ID and student ID                                      | -                                            | -                                                                          | -      |
+| `/data/student/my-class/{id}`                                                                   | Get student's class list by student ID                                               | -                                            | -                                                                          | -      |
+| `/data/student/all-schedule/{id}`                                                               | Get student's schedule by student ID                                                 | -                                            | -                                                                          | -      |
+| `/data/student/all-schedule/{id}/?day=<day_name>`                                               | Get student's schedule by student ID on spesific day                                 | -                                            | -                                                                          | -      |
+| `/data/course`                                                                                  | Get all course                                                                       | Create a new course                          | -                                                                          | -      |
+| `/data/course/?q=<keyword>`                                                                     | Search course using spesific keyword                                                 | -                                            | -                                                                          | -      |
+| `/data/course/?sort=<pricing-<AZ/ZA>&level-<AZ/ZA>&category>-<AZ/ZA>`                           | Get all course and order by price and/or level and/or category                       | -                                            | -                                                                          | -      |
+| `/data/course/?q=<keyword>&sort=<pricing-<AZ/ZA>&level-<AZ/ZA>&category>-<AZ/ZA>`               | Search course using spesific keyword and order by price and/or level and/or category | -                                            | -                                                                          | -      |
+| `/data/course/filter/?category=<category_name>&level=<level_num>&price=<free/paid>`             | Filter course by price and/or level and/or category                                  | -                                            | -                                                                          | -      |
+| `/data/course/filter/?q=<keyword>&category=<category_name>&level=<level_num>&price=<free/paid>` | Filter course by price and/or level and/or category                                  | -                                            | -                                                                          | -      |
+| `/data/course/register`                                                                         | -                                                                                    | Register student to a course                 | -                                                                          | -      |
+| `/data/course/categories`                                                                       | Get all course category                                                              | -                                            | -                                                                          | -      |
+| `/data/course/detail/{id}`                                                                      | Get course detail by course ID                                                       | -                                            | -                                                                          | -      |
+| `/data/course/scoring/{chapter}/{user}`                                                         | -                                                                                    | -                                            | Submit student score on course chapter by student ID and course chapter ID | -      |
