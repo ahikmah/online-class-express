@@ -77,16 +77,17 @@ const registerCourse = (req, res) => {
 
 const submitScore = (req, res) => {
     const data = { ...req.body };
-    const idChapter = req.params.id;
+    const idChapter = req.params.chapter;
+    const idEnroll = req.params.enroll;
     courseModel
-        .submitScore(data, idChapter)
+        .submitScore(data, idChapter, idEnroll)
         .then((result) => {
             writeResponse(res, null, 200, result);
         })
         .catch((err) => {
             writeError(res, 500, err);
         });
-    console.log(data);
+    // console.log(data);
 };
 
 const getCourseDetail = (req, res) => {

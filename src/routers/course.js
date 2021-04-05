@@ -22,7 +22,7 @@ Router.get('/filter', filterCourse);
 // REGISTER COURSE
 Router.post('/register', registerCourse);
 
-Router.patch('/scoring/:id', submitScore);
+Router.patch('/scoring/:chapter/:enroll', submitScore);
 
 Router.get('/categories', getCourseCategory);
 

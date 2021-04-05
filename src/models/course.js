@@ -102,12 +102,12 @@ const registerCourse = (data) => {
     });
 };
 
-const submitScore = (data, id) => {
-    qs = 'UPDATE student_chapter_progress SET ? WHERE id=?';
-    updated = [data, id];
+const submitScore = (data, idChapter, idEnroll) => {
+    qs =
+        'UPDATE student_chapter_progress SET ? WHERE course_chapter_id=? && student_course_id=?';
 
     return new Promise((resolve, reject) => {
-        dbMysql.query(qs, updated, (err, result) => {
+        dbMysql.query(qs, [data, idChapter, idEnroll], (err, result) => {
             if (err) {
                 reject(err);
             } else {
