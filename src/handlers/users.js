@@ -29,7 +29,7 @@ const registerUser = (req, res) => {
             }
         })
         .catch((err) => {
-            writeError(res, 400, err);
+            writeError(res, 500, err);
         });
 };
 
@@ -39,12 +39,7 @@ const loginUser = (req, res) => {
         .loginUser(data)
         .then((result) => {
             if (result) {
-                response = {
-                    success: true,
-                    message: 'Login success',
-                    role: result[0].role === 1 ? 'facilitator' : 'student',
-                };
-                res.status(200).json(response);
+                writeResponse(res, null, 200, result);
             } else if (!result) {
                 response = {
                     success: false,
