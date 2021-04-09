@@ -1,7 +1,6 @@
 const Router = require('express').Router();
 
 const {
-    searchCourseAndSort,
     getCourseCategory,
     createNewCourse,
     registerCourse,
@@ -13,13 +12,13 @@ const {
 const authorize = require('../middlewares/authorize');
 
 // GET ALL COURSE, SEARCHING, SORTING
-Router.get('/', searchCourseAndSort);
+// Router.get('/', searchCourseAndSort);
 
 // CREATE NEW COURSE
 Router.post('/', authorize.instructorOnly, createNewCourse);
 
 // FILTER COURSE
-Router.get('/filter', authorize.studentOnly, filterCourse);
+Router.get('/', authorize.studentOnly, filterCourse);
 
 // REGISTER COURSE
 Router.post('/register', authorize.studentOnly, registerCourse);
