@@ -19,6 +19,17 @@ const getSpesificMemberProgress = (req, res) => {
     instructorModel
         .getSpesificMemberProgress(idCourse, idUser)
         .then((result) => {
+            // console.log(result);
+            result.map((item) => {
+                // console.log(item.score);
+                if (item.score) {
+                    console.log('number');
+                } else if (item.score === 0) {
+                    console.log('nol');
+                } else {
+                    console.log('unfinished');
+                }
+            });
             writeResponse(res, null, 200, result);
         })
         .catch((err) => {

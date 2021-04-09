@@ -1,5 +1,6 @@
 const studentModel = require('../models/student');
 const { writeResponse, writeError } = require('../helper/response');
+
 const getMyClass = (req, res) => {
     studentModel
         .getMyClass()

@@ -10,19 +10,25 @@ const {
     getCourseDetail,
 } = require('../handlers/course');
 
+const authorize = require('../middlewares/authorize');
+
 // GET ALL COURSE, SEARCHING, SORTING
 Router.get('/', searchCourseAndSort);
 
 // CREATE NEW COURSE
-Router.post('/', createNewCourse);
+Router.post('/', authorize.instructorOnly, createNewCourse);
 
 // FILTER COURSE
-Router.get('/filter', filterCourse);
+Router.get('/filter', authorize.studentOnly, filterCourse);
 
 // REGISTER COURSE
-Router.post('/register', registerCourse);
+Router.post('/register', authorize.studentOnly, registerCourse);
 
-Router.patch('/scoring/:chapter/:enroll', submitScore);
+Router.patch(
+    '/scoring/:chapter/:enroll',
+    authorize.instructorOnly,
+    submitScore
+);
 
 Router.get('/categories', getCourseCategory);
 
