@@ -1,22 +1,76 @@
 const courseModel = require('../models/course');
-const { writeResponse, writeError } = require('../helper/response');
+const {
+    writeResponse,
+    writeError,
+    writeResponsePaginated,
+} = require('../helper/response');
 
 const searchCourseAndSort = (req, res) => {
-    const query = req.query.sort;
-    const search = '%' + req.query.q + '%';
+    const { baseUrl, path, hostname, protocol } = req;
+    const { sort, q, pages } = req.query;
+    const search = '%' + q + '%';
     search === '%undefined%'
         ? courseModel
-              .getAllCourse(query)
-              .then((result) => {
-                  writeResponse(res, null, 200, result);
+              .getAllCourse(pages)
+              .then((finalResult) => {
+                  const { result, count, page, limit } = finalResult;
+                  const totalPage = Math.ceil(count / limit);
+
+                  const url =
+                      protocol +
+                      '://' +
+                      hostname +
+                      ':' +
+                      process.env.PORT +
+                      baseUrl +
+                      path;
+
+                  const prev = page === 1 ? null : url + `?pages=${page - 1}`;
+                  const next =
+                      page === totalPage ? null : url + `?pages=${page + 1}`;
+                  const info = {
+                      count,
+                      page,
+                      totalPage,
+                      next,
+                      prev,
+                  };
+
+                  writeResponsePaginated(res, 200, info, result);
               })
               .catch((err) => {
                   writeError(res, 500, err);
               })
         : courseModel
-              .searchCourseAndSort(query, search)
-              .then((result) => {
-                  writeResponse(res, null, 200, result);
+              .searchCourseAndSort(sort, search, pages)
+              .then((finalResult) => {
+                  const { result, count, page, limit } = finalResult;
+                  const totalPage = Math.ceil(count / limit);
+
+                  const url =
+                      protocol +
+                      '://' +
+                      hostname +
+                      ':' +
+                      process.env.PORT +
+                      baseUrl +
+                      path;
+
+                  const prev =
+                      page === 1 ? null : url + `?q=${q}&pages=${page - 1}`;
+                  const next =
+                      page === totalPage
+                          ? null
+                          : url + `?q=${q}&pages=${page + 1}`;
+                  const info = {
+                      count,
+                      page,
+                      totalPage,
+                      next,
+                      prev,
+                  };
+
+                  writeResponsePaginated(res, 200, info, result);
               })
               .catch((err) => {
                   writeError(res, 500, err);
@@ -24,10 +78,7 @@ const searchCourseAndSort = (req, res) => {
 };
 
 const filterCourse = (req, res) => {
-    const search = req.query.q;
-    const category = req.query.category;
-    const level = req.query.level;
-    const price = req.query.price;
+    const { q: search, category, level, price } = req.query;
 
     courseModel
         .filterCourse(search, category, level, price)
@@ -60,7 +111,6 @@ const createNewCourse = (req, res) => {
         .catch((err) => {
             writeError(res, 500, err);
         });
-    // console.log(data);
 };
 
 const registerCourse = (req, res) => {

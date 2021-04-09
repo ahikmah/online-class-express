@@ -1,5 +1,9 @@
 const studentModel = require('../models/student');
-const { writeResponse, writeError } = require('../helper/response');
+const {
+    writeResponse,
+    writeError,
+    writeResponsePaginated,
+} = require('../helper/response');
 
 const getMyClass = (req, res) => {
     studentModel
@@ -13,11 +17,34 @@ const getMyClass = (req, res) => {
 };
 
 const getMyClassByIdUser = (req, res) => {
+    const { baseUrl, path, hostname, protocol } = req;
     const idUser = req.params.id;
+    const { pages } = req.query;
     studentModel
-        .getMyClassByIdUser(idUser)
-        .then((result) => {
-            writeResponse(res, null, 200, result);
+        .getMyClassByIdUser(idUser, pages)
+        .then((finalResult) => {
+            const { result, count, page, limit } = finalResult;
+            const totalPage = Math.ceil(count / limit);
+            console.log(finalResult);
+            const url =
+                protocol +
+                '://' +
+                hostname +
+                ':' +
+                process.env.PORT +
+                baseUrl +
+                path;
+
+            const prev = page === 1 ? null : url + `?pages=${page - 1}`;
+            const next = page === totalPage ? null : url + `?pages=${page + 1}`;
+            const info = {
+                count,
+                page,
+                totalPage,
+                next,
+                prev,
+            };
+            writeResponsePaginated(res, 200, info, result);
         })
         .catch((err) => {
             writeError(res, 500, err);
