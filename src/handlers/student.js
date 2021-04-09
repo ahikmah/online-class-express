@@ -25,7 +25,6 @@ const getMyClassByIdUser = (req, res) => {
         .then((finalResult) => {
             const { result, count, page, limit } = finalResult;
             const totalPage = Math.ceil(count / limit);
-            console.log(finalResult);
             const url =
                 protocol +
                 '://' +

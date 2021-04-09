@@ -37,7 +37,6 @@ const getMyClassByIdUser = (idUser, pages) => {
                     if (err) {
                         reject(err);
                     } else {
-                        console.log('helo');
                         const { count } = data[0];
                         let finalResult = {
                             result,

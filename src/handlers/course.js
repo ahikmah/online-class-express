@@ -78,12 +78,221 @@ const searchCourseAndSort = (req, res) => {
 };
 
 const filterCourse = (req, res) => {
-    const { q: search, category, level, price } = req.query;
-
+    const { baseUrl, path, hostname, protocol } = req;
+    const { q: search, category, level, price, pages } = req.query;
     courseModel
-        .filterCourse(search, category, level, price)
-        .then((result) => {
-            writeResponse(res, null, 200, result);
+        .filterCourse(search, category, level, price, pages)
+        .then((finalResult) => {
+            const { result, count, page, limit } = finalResult;
+            const totalPage = Math.ceil(count / limit);
+
+            const url =
+                protocol +
+                '://' +
+                hostname +
+                ':' +
+                process.env.PORT +
+                baseUrl +
+                path;
+
+            let prev, next;
+            if (!search && !category && !level && !price) {
+                prev = page === 1 ? null : url + `?pages=${page - 1}`;
+                next = page === totalPage ? null : url + `?pages=${page + 1}`;
+            } else if (search && !category && !level && !price) {
+                prev =
+                    page === 1 ? null : url + `?q=${search}&pages=${page - 1}`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url + `?q=${search}&pages=${page + 1}`;
+            } else if (!search && category && !level && !price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url + `?category=${category}&pages=${page - 1}`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url + `?category=${category}&pages=${page + 1}`;
+            } else if (!search && !category && level && !price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url + `?level=${level}&pages=${page - 1}`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url + `?level=${level}&pages=${page + 1}`;
+            } else if (!search && !category && !level && price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url + `?price=${price}&pages=${page - 1}`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url + `?price=${price}&pages=${page + 1}`;
+            } else if (search && category && !level && !price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&pages=${page - 1}`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&pages=${page + 1}`;
+            } else if (search && !category && level && !price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url + `?q=${search}&level=${level}&pages=${page - 1}`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url + `?q=${search}&level=${level}&pages=${page + 1}`;
+            } else if (search && !category && !level && price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url + `?q=${search}&price=${price}&pages=${page - 1}`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url + `?q=${search}&price=${price}&pages=${page + 1}`;
+            } else if (search && category && level && !price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&level=${level}&pages=${
+                              page - 1
+                          }`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&level=${level}&pages=${
+                              page + 1
+                          }`;
+            } else if (search && category && !level && price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&price=${price}&pages=${
+                              page - 1
+                          }`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&price=${price}&pages=${
+                              page + 1
+                          }`;
+            } else if (search && !category && level && price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url +
+                          `?q=${search}&level=${level}&price=${price}&pages=${
+                              page - 1
+                          }`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url +
+                          `?q=${search}&level=${level}&price=${price}&pages=${
+                              page + 1
+                          }`;
+            } else if (search && category && level && price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&level=${level}&price=${price}&pages=${
+                              page - 1
+                          }`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&level=${level}&price=${price}&pages=${
+                              page + 1
+                          }`;
+            } else if (!search && category && level && !price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url +
+                          `?category=${category}&level=${level}&pages=${
+                              page - 1
+                          }`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url +
+                          `?category=${category}&level=${level}&pages=${
+                              page + 1
+                          }`;
+            } else if (!search && category && !level && price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&price=${price}&pages=${
+                              page - 1
+                          }`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url +
+                          `?q=${search}&category=${category}&price=${price}&pages=${
+                              page + 1
+                          }`;
+            } else if (!search && !category && level && price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url +
+                          `?q=${search}&level=${level}&price=${price}&pages=${
+                              page - 1
+                          }`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url +
+                          `?q=${search}&level=${level}&price=${price}&pages=${
+                              page + 1
+                          }`;
+            } else if (!search && category && level && price) {
+                prev =
+                    page === 1
+                        ? null
+                        : url +
+                          `?category=${category}&level=${level}&price=${price}&pages=${
+                              page - 1
+                          }`;
+                next =
+                    page === totalPage
+                        ? null
+                        : url +
+                          `?category=${category}&level=${level}&price=${price}&pages=${
+                              page + 1
+                          }`;
+            }
+
+            const info = {
+                count,
+                page,
+                totalPage,
+                next,
+                prev,
+            };
+
+            writeResponsePaginated(res, 200, info, result);
         })
         .catch((err) => {
             writeError(res, 500, err);

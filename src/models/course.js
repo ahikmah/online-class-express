@@ -157,21 +157,21 @@ const submitScore = (data, idChapter, idEnroll) => {
     });
 };
 
-const filterCourse = (search, category, level, price) => {
+const filterCourse = (search, category, level, price, pages) => {
     qs = `SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id `;
 
     if (search && !category && !level && !price) {
         qs = qs + `WHERE cr.name LIKE ?`;
-        data = '%' + search + '%';
+        data = ['%' + search + '%'];
     } else if (!search && category && !level && !price) {
         qs = qs + `WHERE ct.name = ? `;
-        data = category;
+        data = [category];
     } else if (!search && level && !category && !price) {
         qs = qs + `WHERE cr.level = ? `;
-        data = level;
+        data = [level];
     } else if (!search && price && !category && !level) {
         qs = qs + `WHERE cr.price ? 0 `;
-        data = price === 'free' ? mysql.raw('=') : mysql.raw('>');
+        data = [price === 'free' ? mysql.raw('=') : mysql.raw('>')];
     } else if (!search && category && level && !price) {
         qs = qs + `WHERE ct.name = ? && cr.level = ?`;
         data = [category, level];
@@ -230,14 +230,47 @@ const filterCourse = (search, category, level, price) => {
         data = null;
     }
 
+    const paginate = ' LIMIT ? OFFSET ?';
+
+    const fullQuery = qs + paginate;
+
+    const limit = 5;
+    const page = Number(pages) || 1;
+    const offset = (page - 1) * limit;
+
     return new Promise((resolve, reject) => {
-        dbMysql.query(qs, data, (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
+        dbMysql.query(
+            fullQuery,
+            data ? [...data, limit, offset] : [limit, offset],
+            (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    const qsCount =
+                        'SELECT COUNT(*) AS count FROM(' + qs + ') as count';
+
+                    dbMysql.query(qsCount, data, (err, data) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            const { count } = data[0];
+                            let finalResult = {
+                                result,
+                                count,
+                                page,
+                                limit,
+                            };
+
+                            if (finalResult.length === 0) {
+                                result = false;
+                            }
+
+                            resolve(finalResult);
+                        }
+                    });
+                }
             }
-        });
+        );
     });
 };
 
