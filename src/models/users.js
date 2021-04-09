@@ -65,7 +65,7 @@ const loginUser = (data) => {
 
                     const payload = {
                         username: result[0].username,
-                        role: result[0].role === 1 ? 'facilitator' : 'student',
+                        role: result[0].role === 1 ? 'instructor' : 'student',
                     };
 
                     const options = {
