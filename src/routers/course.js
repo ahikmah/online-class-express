@@ -11,11 +11,10 @@ const {
 
 const authorize = require('../middlewares/authorize');
 
-// GET ALL COURSE, SEARCHING, SORTING
-// Router.get('/', searchCourseAndSort);
+const multerUpload = require('../middlewares/upload');
 
 // CREATE NEW COURSE
-Router.post('/', authorize.instructorOnly, createNewCourse);
+Router.post('/', authorize.instructorOnly, multerUpload.any(), createNewCourse);
 
 // FILTER COURSE
 Router.get('/', authorize.studentOnly, filterCourse);

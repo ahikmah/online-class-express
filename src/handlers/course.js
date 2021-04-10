@@ -1,9 +1,25 @@
 const courseModel = require('../models/course');
+
 const {
     writeResponse,
     writeError,
     writeResponsePaginated,
 } = require('../helper/response');
+
+const createNewCourse = (req, res) => {
+    const { files } = req;
+    const banner = `/images/${files[0].filename}`;
+    const data = { ...req.body, banner };
+    console.log(data);
+    courseModel
+        .createNewCourse(data)
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, 500, err);
+        });
+};
 
 const filterCourse = (req, res) => {
     const { baseUrl, path, hostname, protocol } = req;
@@ -448,18 +464,6 @@ const filterCourse = (req, res) => {
 const getCourseCategory = (req, res) => {
     courseModel
         .getCourseCategory()
-        .then((result) => {
-            writeResponse(res, null, 200, result);
-        })
-        .catch((err) => {
-            writeError(res, 500, err);
-        });
-};
-
-const createNewCourse = (req, res) => {
-    const data = { ...req.body };
-    courseModel
-        .createNewCourse(data)
         .then((result) => {
             writeResponse(res, null, 200, result);
         })

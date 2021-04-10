@@ -54,7 +54,9 @@ const loginUser = (req, res) => {
 };
 
 const updateUserById = (req, res) => {
-    const data = { ...req.body };
+    const { files } = req;
+    const avatar = `/images/${files[0].filename}`;
+    const data = { ...req.body, avatar };
     const idUser = req.params.id;
     userModel
         .updateUserById(data, idUser)
