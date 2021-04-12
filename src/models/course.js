@@ -14,6 +14,33 @@ const getCourseCategory = () => {
     });
 };
 
+const postCourseCategory = (data) => {
+    const qs = 'INSERT INTO categories SET ?';
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, data, (err, result) => {
+            if (err) {
+                reject({ status: 500 });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+const updateCourseCategory = (data, idCategory) => {
+    const qs = 'UPDATE categories SET ? WHERE id = ? ';
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, [data, idCategory], (err, result) => {
+            if (err) {
+                // console.log(err);
+                reject({ status: 500 });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
 const createNewCourse = (data) => {
     const qs = 'INSERT INTO courses SET ?';
     return new Promise((resolve, reject) => {
@@ -27,15 +54,68 @@ const createNewCourse = (data) => {
     });
 };
 
-const registerCourse = (data) => {
-    const qs = 'INSERT INTO student_course SET ?';
+const createNewChapter = (data) => {
+    const qs = `INSERT INTO course_chapters (courses_id, name) VALUES ?`;
+    const chapters = [data.map((item) => [item.courses_id, item.name])];
+    // console.log(tes);
     return new Promise((resolve, reject) => {
-        dbMysql.query(qs, data, (err, result) => {
+        dbMysql.query(qs, chapters, (err, result) => {
             if (err) {
+                console.log(err);
                 reject(err);
             } else {
                 resolve(result);
             }
+        });
+    });
+};
+
+const updateCourse = (data, idCourse) => {
+    const qs = 'UPDATE courses SET ? WHERE id = ? ';
+    let student_course;
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, [data, idCourse], (err, result) => {
+            if (err) {
+                reject({ status: 500 });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+const registerCourse = (data) => {
+    const qs = 'INSERT INTO student_course SET ?';
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, data, (err, result) => {
+            if (err) return reject(err);
+            const qsEnroll = `SELECT MAX(id) as enroll_id FROM student_course`;
+            dbMysql.query(qsEnroll, (err, result) => {
+                if (err) return reject(err);
+                const { enroll_id } = result[0];
+                student_course = result[0];
+                const courseID = `SELECT course_id FROM student_course WHERE id=?`;
+                dbMysql.query(courseID, enroll_id, (err, result) => {
+                    if (err) return reject(err);
+                    const { course_id } = result[0];
+                    const qsMinMax = `SELECT MIN(id) as minCount, MAX(id) as maxCount FROM course_chapters WHERE courses_id=?`;
+                    dbMysql.query(qsMinMax, course_id, (err, result) => {
+                        if (err) return reject(err);
+                        const { minCount, maxCount } = result[0];
+                        console.log(minCount, maxCount, enroll_id);
+                        const proc = 'CALL regisChapter (?,?,?)';
+                        dbMysql.query(
+                            proc,
+                            [minCount, maxCount, enroll_id],
+                            (err, result) => {
+                                console.log(result);
+                                if (err) return reject(err);
+                                resolve(result);
+                            }
+                        );
+                    });
+                });
+            });
         });
     });
 };
@@ -55,7 +135,7 @@ const submitScore = (data, idChapter, idEnroll) => {
     });
 };
 
-const filterCourse = (search, category, level, price, sort, pages) => {
+const getAllCourse = (search, category, level, price, sort, pages) => {
     qs = `SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id `;
 
     const qsOrder = [];
@@ -243,17 +323,16 @@ const filterCourse = (search, category, level, price, sort, pages) => {
             fullQuery,
             data ? [...data, limit, offset] : [limit, offset],
             (err, result) => {
-                console.log(fullQuery, data, limit, offset);
+                // console.log(fullQuery, data, limit, offset);
                 if (err) {
-                    reject(err);
-                    console.log(err);
+                    reject({ status: 500 });
                 } else {
                     const qsCount =
                         'SELECT COUNT(*) AS count FROM(' + qs + ') as count';
 
                     dbMysql.query(qsCount, data, (err, data) => {
                         if (err) {
-                            reject(err);
+                            reject({ status: 500 });
                         } else {
                             const { count } = data[0];
                             let finalResult = {
@@ -263,8 +342,13 @@ const filterCourse = (search, category, level, price, sort, pages) => {
                                 limit,
                             };
 
-                            if (finalResult.length === 0) {
-                                result = false;
+                            if (count === 0) {
+                                reject({
+                                    status: 400,
+                                    success: false,
+                                    msg:
+                                        "That search was amazing, but the world isn't ready for it.",
+                                });
                             }
 
                             resolve(finalResult);
@@ -277,16 +361,19 @@ const filterCourse = (search, category, level, price, sort, pages) => {
 };
 
 const getCourseDetail = (idCourse) => {
-    const qs = `SELECT c.id, c.name as course_name, CASE WHEN c.level = 1 THEN 'Beginner'
-    WHEN c.level = 2 THEN 'Intermediate' WHEN c.level = 3 THEN 'Advance'
-    END AS 'level', ct.name as category, IF(c.price>0,concat('$',c.price),'Free') as price,
-    c.description, c.objectives, c.requirements FROM courses c JOIN categories ct ON c.category_id = ct.id
-    WHERE c.id=?`;
+    const qs = `SELECT c.id, c.name as course_name, ROUND((SELECT COUNT(cc.courses_id) FROM course_chapters cc JOIN student_chapter_progress p ON cc.id=p.course_chapter_id WHERE cc.courses_id=? && p.score IS NOT null)/(SELECT COUNT(cc.courses_id) FROM course_chapters cc JOIN student_chapter_progress p ON cc.id=p.course_chapter_id WHERE cc.courses_id=?)*100,0) AS progress_in_percent, CASE WHEN c.level = 1 THEN 'Beginner' WHEN c.level = 2 THEN 'Intermediate' WHEN c.level = 3 THEN 'Advance' END AS 'level', ct.name as category, IF(c.price>0,concat('$',c.price),'Free') as price, c.description, c.objectives, c.requirements FROM courses c JOIN categories ct ON c.category_id = ct.id WHERE c.id=?`;
     return new Promise((resolve, reject) => {
-        dbMysql.query(qs, idCourse, (err, result) => {
+        dbMysql.query(qs, [idCourse, idCourse, idCourse], (err, result) => {
             if (err) {
-                reject(err);
+                reject({ status: 500 });
             } else {
+                if (result.length === 0) {
+                    reject({
+                        status: 400,
+                        success: false,
+                        msg: 'If you were looking for nothing, you found it.',
+                    });
+                }
                 resolve(result);
             }
         });
@@ -295,9 +382,13 @@ const getCourseDetail = (idCourse) => {
 
 module.exports = {
     getCourseCategory,
+    postCourseCategory,
+    updateCourseCategory,
+    updateCourse,
     createNewCourse,
+    createNewChapter,
     registerCourse,
     submitScore,
-    filterCourse,
+    getAllCourse,
     getCourseDetail,
 };

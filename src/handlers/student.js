@@ -24,7 +24,8 @@ const getMyClassByIdUser = (req, res) => {
         .getMyClassByIdUser(idUser, pages)
         .then((finalResult) => {
             const { result, count, page, limit } = finalResult;
-            const totalPage = Math.ceil(count / limit);
+            const totalPage = Math.ceil(count / limit) || 1;
+
             const url =
                 protocol +
                 '://' +
@@ -65,7 +66,6 @@ const getAllSchedule = (req, res) => {
 };
 
 module.exports = {
-    getMyClass,
     getMyClassByIdUser,
     getAllSchedule,
 };

@@ -3,8 +3,12 @@ const usersRouter = require('./users');
 const coursesRouter = require('./course');
 const instructorRouter = require('./instructor');
 const studentRouter = require('./student');
+const authRouter = require('./auth');
 ////////////////////////////////////
 Router.get('/ping', (req, res) => res.send(`<h1>pong</h1>`));
+
+// AUTH
+Router.use('/data/auth', authRouter);
 
 // USERS
 Router.use('/data/users', usersRouter);

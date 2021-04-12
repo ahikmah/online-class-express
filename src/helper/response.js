@@ -5,26 +5,11 @@ const writeResponse = (res, header, status, result) => {
     if (header) {
         res.header(header);
     }
-
-    if (result.affectedRows === 0) {
-        response = {
-            success: false,
-            result,
-        };
-        status = 304;
-    } else if (result) {
-        response = {
-            success: true,
-            result,
-        };
-    } else {
-        status = 204;
-    }
-    res.status(status).json(response);
+    res.status(status).json(result);
 };
 
 const writeError = (res, status, err) => {
-    res.status(status).json(new Error(err));
+    res.status(status).json(err);
 };
 
 const writeResponsePaginated = (res, status, info, result) => {

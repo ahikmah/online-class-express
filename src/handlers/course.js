@@ -10,7 +10,7 @@ const createNewCourse = (req, res) => {
     const { files } = req;
     const banner = files.length > 0 ? `/images/${files[0].filename}` : null;
     const data = files.length > 0 ? { ...req.body, banner } : { ...req.body };
-    console.log(data);
+    // console.log(data);
     courseModel
         .createNewCourse(data)
         .then((result) => {
@@ -21,14 +21,27 @@ const createNewCourse = (req, res) => {
         });
 };
 
-const filterCourse = (req, res) => {
+const createNewChapter = (req, res) => {
+    const data = req.body;
+    courseModel
+        .createNewChapter(data)
+        .then((result) => {
+            console.log(result);
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, 500, err);
+        });
+};
+
+const getAllCourse = (req, res) => {
     const { baseUrl, path, hostname, protocol } = req;
     const { q: search, category, level, price, sort, pages } = req.query;
     courseModel
-        .filterCourse(search, category, level, price, sort, pages)
+        .getAllCourse(search, category, level, price, sort, pages)
         .then((finalResult) => {
             const { result, count, page, limit } = finalResult;
-            const totalPage = Math.ceil(count / limit);
+            const totalPage = Math.ceil(count / limit) || 1;
 
             const url =
                 protocol +
@@ -457,18 +470,11 @@ const filterCourse = (req, res) => {
             writeResponsePaginated(res, 200, info, result);
         })
         .catch((err) => {
-            writeError(res, 500, err);
-        });
-};
-
-const getCourseCategory = (req, res) => {
-    courseModel
-        .getCourseCategory()
-        .then((result) => {
-            writeResponse(res, null, 200, result);
-        })
-        .catch((err) => {
-            writeError(res, 500, err);
+            writeError(res, err.status, {
+                success: err.success,
+                conflict: err.conflict,
+                message: err.msg,
+            });
         });
 };
 
@@ -507,15 +513,94 @@ const getCourseDetail = (req, res) => {
             writeResponse(res, null, 200, result);
         })
         .catch((err) => {
+            writeError(res, err.status, {
+                success: err.success,
+                conflict: err.conflict,
+                message: err.msg,
+            });
+        });
+};
+
+const getCourseCategory = (req, res) => {
+    courseModel
+        .getCourseCategory()
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
             writeError(res, 500, err);
+        });
+};
+
+const postCourseCategory = (req, res) => {
+    const { files } = req;
+    const thumbnail = files.length > 0 ? `/images/${files[0].filename}` : null;
+    const data =
+        files.length > 0 ? { ...req.body, thumbnail } : { ...req.body };
+    courseModel
+        .postCourseCategory(data)
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, err.status, {
+                success: err.success,
+                conflict: err.conflict,
+                message: err.msg,
+            });
+        });
+};
+
+const updateCourseCategory = (req, res) => {
+    const { files } = req;
+    const thumbnail = files.length > 0 ? `/images/${files[0].filename}` : null;
+    const data =
+        files.length > 0 ? { ...req.body, thumbnail } : { ...req.body };
+    const idCategory = req.params.id;
+
+    courseModel
+        .updateCourseCategory(data, idCategory)
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, err.status, {
+                success: err.success,
+                conflict: err.conflict,
+                message: err.msg,
+            });
+        });
+};
+
+const updateCourse = (req, res) => {
+    const { files } = req;
+    const banner = files.length > 0 ? `/images/${files[0].filename}` : null;
+    const data = files.length > 0 ? { ...req.body, banner } : { ...req.body };
+    const idCourse = req.params.id;
+
+    courseModel
+        .updateCourse(data, idCourse)
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, err.status, {
+                success: err.success,
+                conflict: err.conflict,
+                message: err.msg,
+            });
         });
 };
 
 module.exports = {
     getCourseCategory,
+    postCourseCategory,
+    updateCourseCategory,
+    updateCourse,
     createNewCourse,
+    createNewChapter,
     registerCourse,
-    filterCourse,
+    getAllCourse,
     submitScore,
     getCourseDetail,
 };

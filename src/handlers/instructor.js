@@ -4,17 +4,17 @@ const {
     writeError,
     writeResponsePaginated,
 } = require('../helper/response');
-const getMemberProgress = (req, res) => {
-    const idCourse = req.params.id;
-    instructorModel
-        .getMemberProgress(idCourse)
-        .then((result) => {
-            writeResponse(res, null, 200, result);
-        })
-        .catch((err) => {
-            writeError(res, 500, err);
-        });
-};
+// const getMemberProgress = (req, res) => {
+//     const idCourse = req.params.id;
+//     instructorModel
+//         .getMemberProgress(idCourse)
+//         .then((result) => {
+//             writeResponse(res, null, 200, result);
+//         })
+//         .catch((err) => {
+//             writeError(res, 500, err);
+//         });
+// };
 
 const getSpesificMemberProgress = (req, res) => {
     const idCourse = req.params.course;
@@ -25,13 +25,12 @@ const getSpesificMemberProgress = (req, res) => {
         .then((result) => {
             // console.log(result);
             result.map((item) => {
-                // console.log(item.score);
                 if (item.score) {
-                    console.log('number');
+                    item.score = item.score;
                 } else if (item.score === 0) {
-                    console.log('nol');
+                    item.score = item.score;
                 } else {
-                    console.log('unfinished');
+                    item.score = 'Unfinished';
                 }
             });
             writeResponse(res, null, 200, result);
@@ -49,7 +48,8 @@ const getMyCourse = (req, res) => {
         .getMyCourse(idUser, pages)
         .then((finalResult) => {
             const { result, count, page, limit } = finalResult;
-            const totalPage = Math.ceil(count / limit);
+            const totalPage = Math.ceil(count / limit) || 1;
+
             const url =
                 protocol +
                 '://' +
@@ -90,7 +90,7 @@ const getMySchedule = (req, res) => {
 };
 
 module.exports = {
-    getMemberProgress,
+    // getMemberProgress,
     getSpesificMemberProgress,
     getMyCourse,
     getMySchedule,
