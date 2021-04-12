@@ -55,8 +55,9 @@ const loginUser = (req, res) => {
 
 const updateUserById = (req, res) => {
     const { files } = req;
-    const avatar = `/images/${files[0].filename}`;
-    const data = { ...req.body, avatar };
+    // console.log(files);
+    const avatar = files.length > 0 ? `/images/${files[0].filename}` : null;
+    const data = files.length > 0 ? { ...req.body, avatar } : { ...req.body };
     const idUser = req.params.id;
     userModel
         .updateUserById(data, idUser)

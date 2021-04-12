@@ -8,8 +8,8 @@ const {
 
 const createNewCourse = (req, res) => {
     const { files } = req;
-    const banner = `/images/${files[0].filename}`;
-    const data = { ...req.body, banner };
+    const banner = files.length > 0 ? `/images/${files[0].filename}` : null;
+    const data = files.length > 0 ? { ...req.body, banner } : { ...req.body };
     console.log(data);
     courseModel
         .createNewCourse(data)
