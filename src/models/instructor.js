@@ -79,6 +79,7 @@ const getMySchedule = (idUser, day) => {
             if (err) {
                 reject(err);
             } else {
+                if (result.length === 0) return reject({ status: 204 });
                 resolve(result);
             }
         });

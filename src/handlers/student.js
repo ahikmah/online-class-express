@@ -5,17 +5,6 @@ const {
     writeResponsePaginated,
 } = require('../helper/response');
 
-const getMyClass = (req, res) => {
-    studentModel
-        .getMyClass()
-        .then((result) => {
-            writeResponse(res, null, 200, result);
-        })
-        .catch((err) => {
-            writeError(res, 500, err);
-        });
-};
-
 const getMyClassByIdUser = (req, res) => {
     const { baseUrl, path, hostname, protocol } = req;
     const idUser = req.params.id;
@@ -47,7 +36,9 @@ const getMyClassByIdUser = (req, res) => {
             writeResponsePaginated(res, 200, info, result);
         })
         .catch((err) => {
-            writeError(res, 500, err);
+            writeError(res, err.status, {
+                message: err.msg,
+            });
         });
 };
 

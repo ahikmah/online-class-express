@@ -16,6 +16,12 @@ const getMyClassByIdUser = (idUser, pages) => {
             if (err) {
                 reject(err);
             } else {
+                if (result.length === 0) {
+                    return reject({
+                        status: 204,
+                        msg: "User ID doesn't exist",
+                    });
+                }
                 const qsCount =
                     'SELECT COUNT (*) AS count FROM(' + qs + ') as count';
 

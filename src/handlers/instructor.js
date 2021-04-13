@@ -85,7 +85,9 @@ const getMySchedule = (req, res) => {
             writeResponse(res, null, 200, result);
         })
         .catch((err) => {
-            writeError(res, 500, err);
+            writeError(res, err.status, {
+                message: err.msg,
+            });
         });
 };
 
