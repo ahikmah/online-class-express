@@ -6,8 +6,8 @@ const {
 } = require('../handlers/student');
 const authorize = require('../middlewares/authorize');
 
-Router.get('/my-class/:id', authorize.studentOnly, getMyClassByIdUser);
+Router.get('/my-class', authorize.studentOnly, getMyClassByIdUser);
 
-Router.get('/all-schedule/:id', authorize.studentOnly, getAllSchedule);
+Router.get('/all-schedule', authorize.studentOnly, getAllSchedule);
 
 module.exports = Router;

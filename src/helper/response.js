@@ -5,11 +5,22 @@ const writeResponse = (res, header, status, result) => {
     if (header) {
         res.header(header);
     }
-    res.status(status).json(result);
+    if (result) {
+        response = {
+            result,
+        };
+    }
+    res.status(status).json(response);
 };
 
-const writeError = (res, status, err) => {
-    res.status(status).json(err);
+const writeError = (res, status, error) => {
+    let response;
+    if (error) {
+        response = {
+            error,
+        };
+    }
+    res.status(status).json(response);
 };
 
 const writeResponsePaginated = (res, status, info, result) => {

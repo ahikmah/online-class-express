@@ -43,7 +43,7 @@ const getSpesificMemberProgress = (req, res) => {
 const getMyCourse = (req, res) => {
     const { baseUrl, path, hostname, protocol } = req;
     const { pages } = req.query;
-    const idUser = req.params.id;
+    const idUser = req.token;
     instructorModel
         .getMyCourse(idUser, pages)
         .then((finalResult) => {
@@ -76,8 +76,9 @@ const getMyCourse = (req, res) => {
 };
 
 const getMySchedule = (req, res) => {
-    const idUser = req.params.id;
+    const idUser = req.token;
     const day = req.query.day;
+    // console.log(idUser);
 
     instructorModel
         .getMySchedule(idUser, day)

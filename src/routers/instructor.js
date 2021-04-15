@@ -9,9 +9,9 @@ const {
 const authorize = require('../middlewares/authorize');
 // Router.get('/member-progress/:id', getMemberProgress); //getMembersProgress
 
-Router.get('/my-course/:id', authorize.instructorOnly, getMyCourse);
+Router.get('/my-course', authorize.instructorOnly, getMyCourse);
 
-Router.get('/my-schedule/:id', authorize.instructorOnly, getMySchedule);
+Router.get('/my-schedule', authorize.instructorOnly, getMySchedule);
 
 Router.get(
     '/member-progress/:course/:user',

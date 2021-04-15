@@ -7,7 +7,7 @@ const {
 
 const getMyClassByIdUser = (req, res) => {
     const { baseUrl, path, hostname, protocol } = req;
-    const idUser = req.params.id;
+    const idUser = req.token;
     const { pages } = req.query;
     studentModel
         .getMyClassByIdUser(idUser, pages)
@@ -43,7 +43,7 @@ const getMyClassByIdUser = (req, res) => {
 };
 
 const getAllSchedule = (req, res) => {
-    const idUser = req.params.id;
+    const idUser = req.token;
     const day = req.query.day;
 
     studentModel
