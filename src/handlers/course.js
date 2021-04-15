@@ -8,13 +8,20 @@ const {
 
 const createNewCourse = (req, res) => {
     const { files } = req;
+    const instructor_id = req.token;
     const banner = files.length > 0 ? `/images/${files[0].filename}` : null;
-    const data = files.length > 0 ? { ...req.body, banner } : { ...req.body };
+    const data =
+        files.length > 0
+            ? { ...req.body, instructor_id, banner }
+            : { ...req.body, instructor_id };
     // console.log(data);
     courseModel
         .createNewCourse(data)
         .then((result) => {
-            writeResponse(res, null, 200, result);
+            writeResponse(res, null, 200, {
+                success: 'true',
+                message: 'Course created successfully!',
+            });
         })
         .catch((err) => {
             writeError(res, 500, err);
@@ -27,7 +34,10 @@ const createNewChapter = (req, res) => {
         .createNewChapter(data)
         .then((result) => {
             console.log(result);
-            writeResponse(res, null, 200, result);
+            writeResponse(res, null, 200, {
+                success: true,
+                message: 'Course chapters created',
+            });
         })
         .catch((err) => {
             writeError(res, 500, err);
@@ -483,7 +493,10 @@ const registerCourse = (req, res) => {
     courseModel
         .registerCourse(data)
         .then((result) => {
-            writeResponse(res, null, 200, result);
+            writeResponse(res, null, 200, {
+                success: true,
+                message: 'Register successful',
+            });
         })
         .catch((err) => {
             writeError(res, 500, err);
@@ -497,7 +510,10 @@ const submitScore = (req, res) => {
     courseModel
         .submitScore(data, idChapter, idEnroll)
         .then((result) => {
-            writeResponse(res, null, 200, result);
+            writeResponse(res, null, 200, {
+                success: true,
+                message: 'Score submitted',
+            });
         })
         .catch((err) => {
             writeError(res, 500, err);
@@ -540,7 +556,10 @@ const postCourseCategory = (req, res) => {
     courseModel
         .postCourseCategory(data)
         .then((result) => {
-            writeResponse(res, null, 200, result);
+            writeResponse(res, null, 200, {
+                success: true,
+                message: 'Course category created',
+            });
         })
         .catch((err) => {
             writeError(res, err.status, {
@@ -561,7 +580,10 @@ const updateCourseCategory = (req, res) => {
     courseModel
         .updateCourseCategory(data, idCategory)
         .then((result) => {
-            writeResponse(res, null, 200, result);
+            writeResponse(res, null, 200, {
+                success: true,
+                message: 'Update successful',
+            });
         })
         .catch((err) => {
             writeError(res, err.status, {
@@ -581,7 +603,10 @@ const updateCourse = (req, res) => {
     courseModel
         .updateCourse(data, idCourse)
         .then((result) => {
-            writeResponse(res, null, 200, result);
+            writeResponse(res, null, 200, {
+                success: true,
+                message: 'Update successful',
+            });
         })
         .catch((err) => {
             writeError(res, err.status, {
