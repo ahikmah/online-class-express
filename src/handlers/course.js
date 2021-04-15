@@ -489,7 +489,8 @@ const getAllCourse = (req, res) => {
 };
 
 const registerCourse = (req, res) => {
-    const data = { ...req.body };
+    const student_id = req.token;
+    const data = { ...req.body, student_id };
     courseModel
         .registerCourse(data)
         .then((result) => {
