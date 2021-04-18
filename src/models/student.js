@@ -45,7 +45,7 @@ const getMyClassByIdUser = (idUser, pages) => {
 };
 
 const getMyProgress = (idUser, idCourse) => {
-    const qs = `SELECT u.full_name student_name, c.name course_name, cc.name chapter_name, p.score as score FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN student_chapter_progress p ON sc.id = p.student_course_id JOIN course_chapters cc ON cc.id = p.course_chapter_id JOIN courses c ON cc.courses_id = c.id WHERE c.id =? AND u.id=?`;
+    const qs = `SELECT u.full_name student_name, c.name course_name, DATE_FORMAT(c.schedule, '%W, %e %M %Y') as schedule, c.start_time, c.end_time,cc.name chapter_name, p.score as score FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN student_chapter_progress p ON sc.id = p.student_course_id JOIN course_chapters cc ON cc.id = p.course_chapter_id JOIN courses c ON cc.courses_id = c.id WHERE c.id =? AND u.id=?`;
 
     return new Promise((resolve, reject) => {
         dbMysql.query(qs, [idCourse, idUser], (err, result) => {
