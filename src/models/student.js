@@ -44,6 +44,20 @@ const getMyClassByIdUser = (idUser, pages) => {
     });
 };
 
+const getMyProgress = (idUser, idCourse) => {
+    const qs = `SELECT u.full_name student_name, c.name course_name, cc.name chapter_name, p.score as score FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN student_chapter_progress p ON sc.id = p.student_course_id JOIN course_chapters cc ON cc.id = p.course_chapter_id JOIN courses c ON cc.courses_id = c.id WHERE c.id =? AND u.id=?`;
+
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, [idCourse, idUser], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
 const getAllSchedule = (idUser, day) => {
     const qs = day
         ? `SELECT c.id, c.name course_name, c.start_time AS time, concat(TIMESTAMPDIFF(MINUTE, c.start_time, c.end_time), ' minutes') AS duration FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses c ON c.id= sc.course_id WHERE u.id=? && DATE_FORMAT(c.schedule, '%W')=? GROUP BY c.name ORDER BY time`
@@ -62,5 +76,6 @@ const getAllSchedule = (idUser, day) => {
 
 module.exports = {
     getMyClassByIdUser,
+    getMyProgress,
     getAllSchedule,
 };

@@ -42,6 +42,30 @@ const getMyClassByIdUser = (req, res) => {
         });
 };
 
+const getMyProgress = (req, res) => {
+    const idUser = req.token;
+    const idCourse = req.params.course;
+
+    studentModel
+        .getMyProgress(idUser, idCourse)
+        .then((result) => {
+            // console.log(result);
+            result.map((item) => {
+                if (item.score) {
+                    item.score = item.score;
+                } else if (item.score === 0) {
+                    item.score = item.score;
+                } else {
+                    item.score = 'Unfinished';
+                }
+            });
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, 500, err);
+        });
+};
+
 const getAllSchedule = (req, res) => {
     const idUser = req.token;
     const day = req.query.day;
@@ -58,5 +82,6 @@ const getAllSchedule = (req, res) => {
 
 module.exports = {
     getMyClassByIdUser,
+    getMyProgress,
     getAllSchedule,
 };
