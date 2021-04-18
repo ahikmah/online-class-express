@@ -17,7 +17,7 @@ const authorize = require('../middlewares/authorize');
 const multerUpload = require('../middlewares/upload');
 
 // GET ALL, SEARCH, FILTER, AND SORT COURSE
-Router.get('/', getAllCourse);
+Router.get('/', authorize.authUser, getAllCourse);
 
 // CREATE NEW COURSE
 Router.post('/', authorize.instructorOnly, multerUpload.any(), createNewCourse);

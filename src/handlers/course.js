@@ -47,8 +47,9 @@ const createNewChapter = (req, res) => {
 const getAllCourse = (req, res) => {
     const { baseUrl, path, hostname, protocol } = req;
     const { q: search, category, level, price, sort, pages } = req.query;
+    const userId = req.token;
     courseModel
-        .getAllCourse(search, category, level, price, sort, pages)
+        .getAllCourse(search, category, level, price, sort, pages, userId)
         .then((finalResult) => {
             const { result, count, page, limit } = finalResult;
             const totalPage = Math.ceil(count / limit) || 1;

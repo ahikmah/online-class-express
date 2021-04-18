@@ -135,7 +135,7 @@ const submitScore = (data, idChapter, idEnroll) => {
     });
 };
 
-const getAllCourse = (search, category, level, price, sort, pages) => {
+const getAllCourse = (search, category, level, price, sort, pages, userId) => {
     qs = `SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id `;
 
     const qsOrder = [];
@@ -151,53 +151,64 @@ const getAllCourse = (search, category, level, price, sort, pages) => {
 
     if (search && !category && !level && !price && !sort) {
         qs = qs + `WHERE cr.name LIKE ?`;
-        data = ['%' + search + '%'];
+        data = ['%' + search + '%', userId];
     } else if (!search && category && !level && !price && !sort) {
         qs = qs + `WHERE ct.name = ? `;
-        data = [category];
+        data = [category, userId];
     } else if (!search && level && !category && !price && !sort) {
         qs = qs + `WHERE cr.level = ? `;
-        data = [level];
+        data = [level, userId];
     } else if (!search && price && !category && !level && !sort) {
         qs = qs + `WHERE cr.price ? 0 `;
-        data = [price === 'free' ? mysql.raw('=') : mysql.raw('>')];
+        data = [price === 'free' ? mysql.raw('=') : mysql.raw('>'), , userId];
     } else if (!search && category && level && !price && !sort) {
         qs = qs + `WHERE ct.name = ? && cr.level = ?`;
-        data = [category, level];
+        data = [category, level, userId];
     } else if (!search && category && price && !level && !sort) {
         qs = qs + `WHERE ct.name = ? && cr.price ? 0`;
-        data = [category, price === 'free' ? mysql.raw('=') : mysql.raw('>')];
+        data = [
+            category,
+            price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+            userId,
+        ];
     } else if (!search && level && price && !category && !sort) {
         qs = qs + `WHERE cr.level = ?  && cr.price ? 0`;
-        data = [level, price === 'free' ? mysql.raw('=') : mysql.raw('>')];
+        data = [
+            level,
+            price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+            userId,
+        ];
     } else if (!search && category && level && price && !sort) {
         qs = qs + `WHERE ct.name = ? && cr.level = ?  && cr.price ? 0`;
         data = [
             category,
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+            userId,
         ];
     } else if (search && category && !level && !price && !sort) {
         qs = qs + `WHERE cr.name LIKE ? && ct.name= ?`;
-        data = ['%' + search + '%', category];
+        data = ['%' + search + '%', category, userId];
     } else if (search && !category && level && !price && !sort) {
         qs = qs + `WHERE cr.name LIKE ? && cr.level= ?`;
-        data = ['%' + search + '%', level];
+        data = ['%' + search + '%', level, userId];
     } else if (search && !category && !level && price && !sort) {
         qs = qs + `WHERE cr.name LIKE ? && cr.price ?0`;
         data = [
             '%' + search + '%',
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+            userId,
         ];
     } else if (search && category && level && !price && !sort) {
         qs = qs + `WHERE cr.name LIKE ? && ct.name=? && cr.level=?`;
-        data = ['%' + search + '%', category, level];
+        data = ['%' + search + '%', category, level, userId];
     } else if (search && category && !level && price && !sort) {
         qs = qs + `WHERE cr.name LIKE ? && ct.name=? && cr.price?0`;
         data = [
             '%' + search + '%',
             category,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+            userId,
         ];
     } else if (search && !category && level && price && !sort) {
         qs = qs + `WHERE cr.name LIKE ? && cr.level=? && cr.price?0`;
@@ -205,6 +216,7 @@ const getAllCourse = (search, category, level, price, sort, pages) => {
             '%' + search + '%',
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+            userId,
         ];
     } else if (search && category && level && price && !sort) {
         qs =
@@ -214,31 +226,37 @@ const getAllCourse = (search, category, level, price, sort, pages) => {
             category,
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+            userId,
         ];
     } else if (!search && !category && !level && !price && sort) {
         qs = qs + 'ORDER BY ? ?';
-        data = [...qsOrder];
+        data = [...qsOrder, userId];
     } else if (search && !category && !level && !price && sort) {
         qs = qs + 'WHERE cr.name LIKE ? ORDER BY ? ?';
-        data = ['%' + search + '%', ...qsOrder];
+        data = ['%' + search + '%', ...qsOrder, userId];
     } else if (!search && category && !level && !price && sort) {
         qs = qs + 'WHERE ct.name = ? ORDER BY ? ?';
-        data = [category, ...qsOrder];
+        data = [category, ...qsOrder, userId];
     } else if (!search && !category && level && !price && sort) {
         qs = qs + 'WHERE cr.level = ? ORDER BY ? ?';
-        data = [level, ...qsOrder];
+        data = [level, ...qsOrder, userId];
     } else if (!search && !category && !level && price && sort) {
         qs = qs + 'WHERE cr.price ? 0 ORDER BY ? ?';
-        data = [price === 'free' ? mysql.raw('=') : mysql.raw('>'), ...qsOrder];
+        data = [
+            price === 'free' ? mysql.raw('=') : mysql.raw('>'),
+            ...qsOrder,
+            userId,
+        ];
     } else if (!search && category && level && !price && sort) {
         qs = qs + 'WHERE ct.name = ? && cr.level=?  ORDER BY ? ?';
-        data = [category, level, ...qsOrder];
+        data = [category, level, ...qsOrder, userId];
     } else if (!search && category && !level && price && sort) {
         qs = qs + 'WHERE ct.name = ? && cr.price ? 0 ORDER BY ? ?';
         data = [
             category,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             ...qsOrder,
+            userId,
         ];
     } else if (!search && !category && level && price && sort) {
         qs = qs + 'WHERE cr.level = ? && cr.price ?0 ORDER BY ? ?';
@@ -246,6 +264,7 @@ const getAllCourse = (search, category, level, price, sort, pages) => {
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             ...qsOrder,
+            userId,
         ];
     } else if (!search && category && level && price && sort) {
         qs =
@@ -256,25 +275,27 @@ const getAllCourse = (search, category, level, price, sort, pages) => {
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             ...qsOrder,
+            userId,
         ];
     } else if (search && category && !level && !price && sort) {
         qs = qs + 'WHERE cr.name LIKE ? && ct.name = ? ORDER BY ? ?';
-        data = ['%' + search + '%', category, ...qsOrder];
+        data = ['%' + search + '%', category, ...qsOrder, userId];
     } else if (search && !category && level && !price && sort) {
         qs = qs + 'WHERE cr.name LIKE ? && cr.level = ? ORDER BY ? ?';
-        data = ['%' + search + '%', level, ...qsOrder];
+        data = ['%' + search + '%', level, ...qsOrder, userId];
     } else if (search && !category && !level && price && sort) {
         qs = qs + 'WHERE cr.name LIKE ? && cr.price ? 0 ORDER BY ? ?';
         data = [
             '%' + search + '%',
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             ...qsOrder,
+            userId,
         ];
     } else if (search && category && level && !price && sort) {
         qs =
             qs +
             'WHERE cr.name LIKE ? && ct.name = ? && cr.level = ? ORDER BY ? ?';
-        data = ['%' + search + '%', category, level, ...qsOrder];
+        data = ['%' + search + '%', category, level, ...qsOrder, userId];
     } else if (search && category && !level && price && sort) {
         qs =
             qs +
@@ -284,6 +305,7 @@ const getAllCourse = (search, category, level, price, sort, pages) => {
             category,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             ...qsOrder,
+            userId,
         ];
     } else if (search && !category && level && price && sort) {
         qs =
@@ -294,6 +316,7 @@ const getAllCourse = (search, category, level, price, sort, pages) => {
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             ...qsOrder,
+            userId,
         ];
     } else if (search && category && level && price && sort) {
         qs =
@@ -305,14 +328,20 @@ const getAllCourse = (search, category, level, price, sort, pages) => {
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             ...qsOrder,
+            userId,
         ];
     } else {
-        data = null;
+        data = [userId];
     }
 
     const paginate = ' LIMIT ? OFFSET ?';
 
-    const fullQuery = qs + paginate;
+    const filter =
+        search || category || level || price || sort
+            ? ' && cr.id NOT IN (SELECT cr.id FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses cr ON sc.course_id = cr.id WHERE u.id=?)'
+            : ' WHERE cr.id NOT IN (SELECT cr.id FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses cr ON sc.course_id = cr.id WHERE u.id=?)';
+
+    const fullQuery = qs + filter + paginate;
 
     const limit = 5;
     const page = Number(pages) || 1;
@@ -323,12 +352,17 @@ const getAllCourse = (search, category, level, price, sort, pages) => {
             fullQuery,
             data ? [...data, limit, offset] : [limit, offset],
             (err, result) => {
-                // console.log(fullQuery, data, limit, offset);
+                // console.log(fullQuery, ...data, limit, offset);
                 if (err) {
+                    console.log(err);
                     reject({ status: 500 });
                 } else {
+                    // console.log(userId);
                     const qsCount =
-                        'SELECT COUNT(*) AS count FROM(' + qs + ') as count';
+                        'SELECT COUNT(*) AS count FROM(' +
+                        qs +
+                        filter +
+                        ') as count';
 
                     dbMysql.query(qsCount, data, (err, data) => {
                         if (err) {
