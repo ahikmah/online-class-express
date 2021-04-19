@@ -75,6 +75,19 @@ const getMyCourse = (req, res) => {
         });
 };
 
+const getCourseMember = (req, res) => {
+    const idCourse = req.params.course;
+    instructorModel
+        .getCourseMember(idCourse)
+        .then((result) => {
+            // console.log(result);
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, 500, err);
+        });
+};
+
 const getMySchedule = (req, res) => {
     const idUser = req.token;
     const day = req.query.day;
@@ -96,5 +109,6 @@ module.exports = {
     // getMemberProgress,
     getSpesificMemberProgress,
     getMyCourse,
+    getCourseMember,
     getMySchedule,
 };
