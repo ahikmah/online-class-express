@@ -11,6 +11,7 @@ const {
     submitScore,
     getAllCourse,
     getCourseDetail,
+    deleteCourse,
 } = require('../handlers/course');
 
 const authorize = require('../middlewares/authorize');
@@ -27,6 +28,8 @@ Router.patch(
     multerUpload.any(),
     updateCourse
 );
+
+Router.delete('/:id', authorize.instructorOnly, deleteCourse);
 
 Router.post('/new-chapter', authorize.instructorOnly, createNewChapter);
 

@@ -27,6 +27,19 @@ const postCourseCategory = (data) => {
     });
 };
 
+const deleteCourse = (idCourse) => {
+    const qs = 'DELETE FROM courses WHERE courses.id = ?';
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, idCourse, (err, result) => {
+            if (err) {
+                reject({ status: 500 });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
 const updateCourseCategory = (data, idCategory) => {
     const qs = 'UPDATE categories SET ? WHERE id = ? ';
     return new Promise((resolve, reject) => {
@@ -425,4 +438,5 @@ module.exports = {
     submitScore,
     getAllCourse,
     getCourseDetail,
+    deleteCourse,
 };

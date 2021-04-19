@@ -44,6 +44,22 @@ const createNewChapter = (req, res) => {
         });
 };
 
+const deleteCourse = (req, res) => {
+    const idCourse = req.params.id;
+    courseModel
+        .deleteCourse(idCourse)
+        .then((result) => {
+            console.log(result);
+            writeResponse(res, null, 200, {
+                success: true,
+                message: 'Class has been deleted',
+            });
+        })
+        .catch((err) => {
+            writeError(res, 500, err);
+        });
+};
+
 const getAllCourse = (req, res) => {
     const { baseUrl, path, hostname, protocol } = req;
     const { q: search, category, level, price, sort, pages } = req.query;
@@ -623,6 +639,7 @@ module.exports = {
     getCourseCategory,
     postCourseCategory,
     updateCourseCategory,
+    deleteCourse,
     updateCourse,
     createNewCourse,
     createNewChapter,
