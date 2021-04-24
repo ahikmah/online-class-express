@@ -8,7 +8,7 @@ const {
 
 const createNewCourse = (req, res) => {
     const { files } = req;
-    const instructor_id = req.token;
+    const instructor_id = req.token__userid;
     const banner = files.length > 0 ? `/images/${files[0].filename}` : null;
     const data =
         files.length > 0
@@ -63,7 +63,7 @@ const deleteCourse = (req, res) => {
 const getAllCourse = (req, res) => {
     const { baseUrl, path, hostname, protocol } = req;
     const { q: search, category, level, price, sort, pages } = req.query;
-    const userId = req.token;
+    const userId = req.token__userid;
     courseModel
         .getAllCourse(search, category, level, price, sort, pages, userId)
         .then((finalResult) => {
@@ -506,7 +506,7 @@ const getAllCourse = (req, res) => {
 };
 
 const registerCourse = (req, res) => {
-    const student_id = req.token;
+    const student_id = req.token__userid;
     const data = { ...req.body, student_id };
     courseModel
         .registerCourse(data)

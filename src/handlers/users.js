@@ -3,11 +3,11 @@ const { writeResponse, writeError } = require('../helper/response');
 const jwt = require('jsonwebtoken');
 
 const updateUserById = (req, res) => {
-    console.log(req.token);
+    console.log(req.token__userid);
     const { files } = req;
     const avatar = files.length > 0 ? `/images/${files[0].filename}` : null;
     const data = files.length > 0 ? { ...req.body, avatar } : { ...req.body };
-    const idUser = req.token;
+    const idUser = req.token__userid;
     userModel
         .updateUserById(data, idUser)
         .then((result) => {
@@ -26,7 +26,7 @@ const updateUserById = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-    const idUser = req.token;
+    const idUser = req.token__userid;
     userModel
         .getUserById(idUser)
         .then((result) => {

@@ -7,7 +7,7 @@ const {
 
 const getMyClassByIdUser = (req, res) => {
     const { baseUrl, path, hostname, protocol } = req;
-    const idUser = req.token;
+    const idUser = req.token__userid;
     const { pages } = req.query;
     studentModel
         .getMyClassByIdUser(idUser, pages)
@@ -43,7 +43,7 @@ const getMyClassByIdUser = (req, res) => {
 };
 
 const getMyProgress = (req, res) => {
-    const idUser = req.token;
+    const idUser = req.token__userid;
     const idCourse = req.params.course;
 
     studentModel
@@ -67,7 +67,7 @@ const getMyProgress = (req, res) => {
 };
 
 const getAllSchedule = (req, res) => {
-    const idUser = req.token;
+    const idUser = req.token__userid;
     const day = req.query.day;
 
     studentModel

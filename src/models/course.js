@@ -404,8 +404,7 @@ const getAllCourse = (search, category, level, price, sort, pages, userId) => {
             data ? [...data, limit, offset] : [limit, offset],
             (err, result) => {
                 if (err) {
-                    console.log('helo');
-                    console.log(err);
+                    // console.log(err);
                     reject({ status: 500 });
                 } else {
                     const qsCount =

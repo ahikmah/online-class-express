@@ -37,10 +37,10 @@ Router.post('/new-chapter', authorize.instructorOnly, createNewChapter);
 Router.post('/register', authorize.studentOnly, registerCourse);
 
 // GET COURSE DETAIL BY ID
-Router.get('/detail/:id', getCourseDetail);
+Router.get('/detail/:id', authorize.authUser, getCourseDetail);
 
 // COURSE CATEGORY
-Router.get('/categories', getCourseCategory);
+Router.get('/categories', authorize.authUser, getCourseCategory);
 Router.post(
     '/categories',
     authorize.instructorOnly,
