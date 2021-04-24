@@ -40,7 +40,29 @@ const loginUser = (req, res) => {
         });
 };
 
+const logoutUser = (req, res) => {
+    const token = req.token;
+    authModel
+        .logoutUser(token)
+        .then((result) => {
+            if (result) {
+                writeResponse(res, null, 200, {
+                    success: true,
+                    message: 'you have successfully logged out',
+                });
+            }
+        })
+        .catch((err) => {
+            writeError(res, err.status, {
+                success: err.success,
+                conflict: err.conflict,
+                message: err.msg,
+            });
+        });
+};
+
 module.exports = {
     registerUser,
     loginUser,
+    logoutUser,
 };

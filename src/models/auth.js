@@ -51,6 +51,7 @@ const registerUser = (data) => {
 
 const loginUser = (data) => {
     const qs = `SELECT * FROM users WHERE email = ? OR username = ?`;
+    const qsTokenInsert = 'INSERT INTO whitelist_token (token) VALUES (?)';
     const loginData = [data.email, data.username];
     return new Promise((resolve, reject) => {
         dbMysql.query(qs, loginData, (err, result) => {
@@ -97,7 +98,20 @@ const loginUser = (data) => {
                             options,
                             (err, token) => {
                                 if (err) return reject({ status: 500 });
-                                resolve(token);
+                                // resolve(token);
+                                console.log(token);
+                                dbMysql.query(
+                                    qsTokenInsert,
+                                    token,
+                                    (err, _) => {
+                                        // console.log(result);
+                                        if (err) {
+                                            reject({ status: 500 });
+                                        } else {
+                                            resolve(token);
+                                        }
+                                    }
+                                );
                             }
                         );
                     }
@@ -107,4 +121,14 @@ const loginUser = (data) => {
     });
 };
 
-module.exports = { registerUser, loginUser };
+const logoutUser = (token) => {
+    const qs = `DELETE FROM whitelist_token WHERE token = ?`;
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, token, (err, result) => {
+            if (err) return reject({ status: 500 });
+            resolve(result);
+        });
+    });
+};
+
+module.exports = { registerUser, loginUser, logoutUser };
