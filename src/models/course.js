@@ -151,6 +151,11 @@ const submitScore = (data, idChapter, idEnroll) => {
 const getAllCourse = (search, category, level, price, sort, pages, userId) => {
     qs = `SELECT cr.id, cr.name, ct.name AS category, CASE WHEN cr.level = 1 THEN 'Beginner' WHEN cr.level = 2 THEN 'Intermediate' WHEN cr.level = 3 THEN 'Advance' END AS 'level', IF(cr.price>0,concat('$',cr.price), 'Free') as price, cr.description FROM courses cr JOIN categories ct ON cr.category_id = ct.id `;
 
+    const filter =
+        search || category || level || price
+            ? ' && cr.id NOT IN (SELECT cr.id FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses cr ON sc.course_id = cr.id WHERE u.id=?)'
+            : ' WHERE cr.id NOT IN (SELECT cr.id FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses cr ON sc.course_id = cr.id WHERE u.id=?)';
+
     const qsOrder = [];
     if (sort) {
         const order = sort.split('-');
@@ -163,36 +168,37 @@ const getAllCourse = (search, category, level, price, sort, pages, userId) => {
     }
 
     if (search && !category && !level && !price && !sort) {
-        qs = qs + `WHERE cr.name LIKE ?`;
+        qs = qs + `WHERE cr.name LIKE ?` + filter;
         data = ['%' + search + '%', userId];
     } else if (!search && category && !level && !price && !sort) {
-        qs = qs + `WHERE ct.name = ? `;
+        qs = qs + `WHERE ct.name = ? ` + filter;
         data = [category, userId];
     } else if (!search && level && !category && !price && !sort) {
-        qs = qs + `WHERE cr.level = ? `;
+        qs = qs + `WHERE cr.level = ? ` + filter;
         data = [level, userId];
     } else if (!search && price && !category && !level && !sort) {
-        qs = qs + `WHERE cr.price ? 0 `;
-        data = [price === 'free' ? mysql.raw('=') : mysql.raw('>'), , userId];
+        qs = qs + `WHERE cr.price ? 0 ` + filter;
+        data = [price === 'free' ? mysql.raw('=') : mysql.raw('>'), userId];
     } else if (!search && category && level && !price && !sort) {
-        qs = qs + `WHERE ct.name = ? && cr.level = ?`;
+        qs = qs + `WHERE ct.name = ? && cr.level = ? ` + filter;
         data = [category, level, userId];
     } else if (!search && category && price && !level && !sort) {
-        qs = qs + `WHERE ct.name = ? && cr.price ? 0`;
+        qs = qs + `WHERE ct.name = ? && cr.price ? 0 ` + filter;
         data = [
             category,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             userId,
         ];
     } else if (!search && level && price && !category && !sort) {
-        qs = qs + `WHERE cr.level = ?  && cr.price ? 0`;
+        qs = qs + `WHERE cr.level = ?  && cr.price ? 0 ` + filter;
         data = [
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             userId,
         ];
     } else if (!search && category && level && price && !sort) {
-        qs = qs + `WHERE ct.name = ? && cr.level = ?  && cr.price ? 0`;
+        qs =
+            qs + `WHERE ct.name = ? && cr.level = ?  && cr.price ? 0 ` + filter;
         data = [
             category,
             level,
@@ -200,23 +206,23 @@ const getAllCourse = (search, category, level, price, sort, pages, userId) => {
             userId,
         ];
     } else if (search && category && !level && !price && !sort) {
-        qs = qs + `WHERE cr.name LIKE ? && ct.name= ?`;
+        qs = qs + `WHERE cr.name LIKE ? && ct.name= ? ` + filter;
         data = ['%' + search + '%', category, userId];
     } else if (search && !category && level && !price && !sort) {
-        qs = qs + `WHERE cr.name LIKE ? && cr.level= ?`;
+        qs = qs + `WHERE cr.name LIKE ? && cr.level= ? ` + filter;
         data = ['%' + search + '%', level, userId];
     } else if (search && !category && !level && price && !sort) {
-        qs = qs + `WHERE cr.name LIKE ? && cr.price ?0`;
+        qs = qs + `WHERE cr.name LIKE ? && cr.price ? 0 ` + filter;
         data = [
             '%' + search + '%',
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
             userId,
         ];
     } else if (search && category && level && !price && !sort) {
-        qs = qs + `WHERE cr.name LIKE ? && ct.name=? && cr.level=?`;
+        qs = qs + `WHERE cr.name LIKE ? && ct.name=? && cr.level = ? ` + filter;
         data = ['%' + search + '%', category, level, userId];
     } else if (search && category && !level && price && !sort) {
-        qs = qs + `WHERE cr.name LIKE ? && ct.name=? && cr.price?0`;
+        qs = qs + `WHERE cr.name LIKE ? && ct.name=? && cr.price ? 0 ` + filter;
         data = [
             '%' + search + '%',
             category,
@@ -224,7 +230,8 @@ const getAllCourse = (search, category, level, price, sort, pages, userId) => {
             userId,
         ];
     } else if (search && !category && level && price && !sort) {
-        qs = qs + `WHERE cr.name LIKE ? && cr.level=? && cr.price?0`;
+        qs =
+            qs + `WHERE cr.name LIKE ? && cr.level=? && cr.price ? 0 ` + filter;
         data = [
             '%' + search + '%',
             level,
@@ -233,7 +240,9 @@ const getAllCourse = (search, category, level, price, sort, pages, userId) => {
         ];
     } else if (search && category && level && price && !sort) {
         qs =
-            qs + `WHERE cr.name LIKE ? && ct.name=? &&cr.level=? && cr.price?0`;
+            qs +
+            `WHERE cr.name LIKE ? && ct.name=? &&cr.level=? && cr.price ? 0 ` +
+            filter;
         data = [
             '%' + search + '%',
             category,
@@ -242,106 +251,140 @@ const getAllCourse = (search, category, level, price, sort, pages, userId) => {
             userId,
         ];
     } else if (!search && !category && !level && !price && sort) {
-        qs = qs + 'ORDER BY ? ?';
-        data = [...qsOrder, userId];
+        qs = qs + filter + ' ORDER BY ? ?';
+        data = [userId, ...qsOrder];
     } else if (search && !category && !level && !price && sort) {
-        qs = qs + 'WHERE cr.name LIKE ? ORDER BY ? ?';
-        data = ['%' + search + '%', ...qsOrder, userId];
+        qs = qs + 'WHERE cr.name LIKE ? ' + filter + ' ORDER BY ? ?';
+        data = ['%' + search + '%', userId, ...qsOrder];
     } else if (!search && category && !level && !price && sort) {
-        qs = qs + 'WHERE ct.name = ? ORDER BY ? ?';
-        data = [category, ...qsOrder, userId];
+        qs = qs + 'WHERE ct.name = ? ' + filter + ' ORDER BY ? ?';
+        data = [category, userId, ...qsOrder];
     } else if (!search && !category && level && !price && sort) {
-        qs = qs + 'WHERE cr.level = ? ORDER BY ? ?';
-        data = [level, ...qsOrder, userId];
+        qs = qs + 'WHERE cr.level = ? ' + filter + ' ORDER BY ? ?';
+        data = [level, userId, ...qsOrder];
     } else if (!search && !category && !level && price && sort) {
-        qs = qs + 'WHERE cr.price ? 0 ORDER BY ? ?';
+        qs = qs + 'WHERE cr.price ? 0 ' + filter + ' ORDER BY ? ?';
         data = [
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
-            ...qsOrder,
             userId,
+            ...qsOrder,
         ];
     } else if (!search && category && level && !price && sort) {
-        qs = qs + 'WHERE ct.name = ? && cr.level=?  ORDER BY ? ?';
-        data = [category, level, ...qsOrder, userId];
+        qs =
+            qs +
+            'WHERE ct.name = ? && cr.level = ? ' +
+            filter +
+            ' ORDER BY ? ?';
+        data = [category, level, userId, ...qsOrder];
     } else if (!search && category && !level && price && sort) {
-        qs = qs + 'WHERE ct.name = ? && cr.price ? 0 ORDER BY ? ?';
+        qs =
+            qs +
+            'WHERE ct.name = ? && cr.price ? 0 ' +
+            filter +
+            ' ORDER BY ? ?';
         data = [
             category,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
-            ...qsOrder,
             userId,
+            ...qsOrder,
         ];
     } else if (!search && !category && level && price && sort) {
-        qs = qs + 'WHERE cr.level = ? && cr.price ?0 ORDER BY ? ?';
+        qs =
+            qs +
+            'WHERE cr.level = ? && cr.price ? 0 ' +
+            filter +
+            ' ORDER BY ? ?';
         data = [
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
-            ...qsOrder,
             userId,
+            ...qsOrder,
         ];
     } else if (!search && category && level && price && sort) {
         qs =
             qs +
-            'WHERE ct.name = ? && cr.level = ? && cr.price ? 0 ORDER BY ? ?';
+            'WHERE ct.name = ? && cr.level = ? && cr.price ? 0 ' +
+            filter +
+            ' ORDER BY ? ?';
         data = [
             category,
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
-            ...qsOrder,
             userId,
+            ...qsOrder,
         ];
     } else if (search && category && !level && !price && sort) {
-        qs = qs + 'WHERE cr.name LIKE ? && ct.name = ? ORDER BY ? ?';
-        data = ['%' + search + '%', category, ...qsOrder, userId];
+        qs =
+            qs +
+            'WHERE cr.name LIKE ? && ct.name = ? ' +
+            filter +
+            ' ORDER BY ? ?';
+        data = ['%' + search + '%', category, userId, ...qsOrder];
     } else if (search && !category && level && !price && sort) {
-        qs = qs + 'WHERE cr.name LIKE ? && cr.level = ? ORDER BY ? ?';
-        data = ['%' + search + '%', level, ...qsOrder, userId];
+        qs =
+            qs +
+            'WHERE cr.name LIKE ? && cr.level = ? ' +
+            filter +
+            ' ORDER BY ? ?';
+        data = ['%' + search + '%', level, userId, ...qsOrder];
     } else if (search && !category && !level && price && sort) {
-        qs = qs + 'WHERE cr.name LIKE ? && cr.price ? 0 ORDER BY ? ?';
+        qs =
+            qs +
+            'WHERE cr.name LIKE ? && cr.price ? 0 ' +
+            filter +
+            ' ORDER BY ? ?';
         data = [
             '%' + search + '%',
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
-            ...qsOrder,
             userId,
+            ...qsOrder,
         ];
     } else if (search && category && level && !price && sort) {
         qs =
             qs +
-            'WHERE cr.name LIKE ? && ct.name = ? && cr.level = ? ORDER BY ? ?';
-        data = ['%' + search + '%', category, level, ...qsOrder, userId];
+            'WHERE cr.name LIKE ? && ct.name = ? && cr.level = ? ' +
+            filter +
+            ' ORDER BY ? ?';
+        data = ['%' + search + '%', category, level, userId, ...qsOrder];
     } else if (search && category && !level && price && sort) {
         qs =
             qs +
-            'WHERE cr.name LIKE ? && ct.name = ? && cr.price  ? 0 ORDER BY ? ?';
+            'WHERE cr.name LIKE ? && ct.name = ? && cr.price  ? 0 ' +
+            filter +
+            ' ORDER BY ? ?';
         data = [
             '%' + search + '%',
             category,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
-            ...qsOrder,
             userId,
+            ...qsOrder,
         ];
     } else if (search && !category && level && price && sort) {
         qs =
             qs +
-            'WHERE cr.name LIKE ? && cr.level = ? && cr.price  ? 0 ORDER BY ? ?';
+            'WHERE cr.name LIKE ? && cr.level = ? && cr.price  ? 0 ' +
+            filter +
+            ' ORDER BY ? ?';
         data = [
             '%' + search + '%',
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
-            ...qsOrder,
             userId,
+            ...qsOrder,
         ];
     } else if (search && category && level && price && sort) {
         qs =
             qs +
-            'WHERE cr.name LIKE ? && ct.name = ? && cr.level = ? && cr.price  ? 0 ORDER BY ? ?';
+            'WHERE cr.name LIKE ? && ct.name = ? && cr.level = ? && cr.price  ? 0 ' +
+            filter +
+            ' ORDER BY ? ?';
         data = [
             '%' + search + '%',
             category,
             level,
             price === 'free' ? mysql.raw('=') : mysql.raw('>'),
-            ...qsOrder,
             userId,
+            ...qsOrder,
         ];
     } else {
         data = [userId];
@@ -349,12 +392,7 @@ const getAllCourse = (search, category, level, price, sort, pages, userId) => {
 
     const paginate = ' LIMIT ? OFFSET ?';
 
-    const filter =
-        search || category || level || price || sort
-            ? ' && cr.id NOT IN (SELECT cr.id FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses cr ON sc.course_id = cr.id WHERE u.id=?)'
-            : ' WHERE cr.id NOT IN (SELECT cr.id FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses cr ON sc.course_id = cr.id WHERE u.id=?)';
-
-    const fullQuery = qs + filter + paginate;
+    const fullQuery = qs + paginate;
 
     const limit = 5;
     const page = Number(pages) || 1;
@@ -365,18 +403,13 @@ const getAllCourse = (search, category, level, price, sort, pages, userId) => {
             fullQuery,
             data ? [...data, limit, offset] : [limit, offset],
             (err, result) => {
-                // console.log(fullQuery, ...data, limit, offset);
                 if (err) {
+                    console.log('helo');
                     console.log(err);
                     reject({ status: 500 });
                 } else {
-                    // console.log(userId);
                     const qsCount =
-                        'SELECT COUNT(*) AS count FROM(' +
-                        qs +
-                        filter +
-                        ') as count';
-
+                        'SELECT COUNT(*) AS count FROM(' + qs + ') as count';
                     dbMysql.query(qsCount, data, (err, data) => {
                         if (err) {
                             reject({ status: 500 });
