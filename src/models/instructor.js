@@ -86,7 +86,7 @@ const getCourseMember = (idCourse) => {
 
 const getMySchedule = (idUser, day) => {
     const qs = `SELECT c.id as course_id, c.name as course_name, ct.name as category, c.description, DATE_FORMAT(c.schedule, '%W') as day, c.start_time, c.end_time, COUNT(sc.student_id) AS num_of_member  FROM courses c JOIN student_course sc ON c.id = sc.course_id  JOIN categories ct ON c.category_id = ct.id WHERE c.instructor_id=? && DATE_FORMAT(c.schedule, '%W')=? GROUP BY c.name
-    UNION SELECT c.id as course_id, c.name as course_name, ct.name as category, c.description, DATE_FORMAT(c.schedule, '%W') as day, c.start_time, c.end_time, 0 as num_of_member FROM courses c JOIN categories ct ON c.category_id = ct.id WHERE c.instructor_id=? && DATE_FORMAT(c.schedule, '%W')=? && c.name NOT IN (SELECT c.name FROM courses c JOIN student_course sc ON c.id = sc.course_id)`;
+    UNION SELECT c.id as course_id, c.name as course_name, ct.name as category, c.description, DATE_FORMAT(c.schedule, '%W') as day, c.start_time, c.end_time, 0 as num_of_member FROM courses c JOIN categories ct ON c.category_id = ct.id WHERE c.instructor_id=? && DATE_FORMAT(c.schedule, '%W')=? && c.name NOT IN (SELECT c.name FROM courses c JOIN student_course sc ON c.id = sc.course_id) ORDER BY start_time`;
 
     return new Promise((resolve, reject) => {
         dbMysql.query(qs, [idUser, day, idUser, day], (err, result) => {
