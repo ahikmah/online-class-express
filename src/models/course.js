@@ -387,6 +387,7 @@ const getAllCourse = (search, category, level, price, sort, pages, userId) => {
             ...qsOrder,
         ];
     } else {
+        qs = qs + filter;
         data = [userId];
     }
 
