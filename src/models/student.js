@@ -60,8 +60,8 @@ const getMyProgress = (idUser, idCourse) => {
 
 const getAllSchedule = (idUser, day) => {
     const qs = day
-        ? `SELECT c.id, c.name course_name, c.start_time AS time, concat(TIMESTAMPDIFF(MINUTE, c.start_time, c.end_time), ' minutes') AS duration FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses c ON c.id= sc.course_id WHERE u.id=? && DATE_FORMAT(c.schedule, '%W')=? GROUP BY c.name ORDER BY time`
-        : `SELECT c.id, c.name course_name, c.start_time AS time, concat(TIMESTAMPDIFF(MINUTE, c.start_time, c.end_time), ' minutes') AS duration FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses c ON c.id= sc.course_id WHERE u.id=? GROUP BY c.name ORDER BY time`;
+        ? `SELECT c.id, c.name course_name, c.start_time AS time, concat(TIMESTAMPDIFF(MINUTE, c.start_time, c.end_time), ' minutes') AS duration, ROUND(SUM(if(p.score >= 0, 1, 0))/ COUNT(c.name)*100,0) AS progress_in_percent FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses c ON c.id= sc.course_id JOIN student_chapter_progress p ON sc.id = p.student_course_id WHERE u.id=? && DATE_FORMAT(c.schedule, '%W')=? GROUP BY c.name ORDER BY time`
+        : `SELECT c.id, c.name course_name, c.start_time AS time, concat(TIMESTAMPDIFF(MINUTE, c.start_time, c.end_time), ' minutes') AS duration, ROUND(SUM(if(p.score >= 0, 1, 0))/ COUNT(c.name)*100,0) AS progress_in_percent FROM users u JOIN student_course sc ON u.id = sc.student_id JOIN courses c ON c.id= sc.course_id JOIN student_chapter_progress p ON sc.id = p.student_course_id WHERE u.id=? GROUP BY c.name ORDER BY time`;
 
     return new Promise((resolve, reject) => {
         dbMysql.query(qs, day ? [idUser, day] : idUser, (err, result) => {
