@@ -177,6 +177,14 @@ const verifyOTP = (data) => {
                     status: 401,
                 });
             } else {
+                const resetOTP = 'UPDATE users SET otp="" WHERE id=?';
+                dbMysql.query(resetOTP, result[0].id, (err, result) => {
+                    if (err) {
+                        return reject({ status: 500 });
+                    } else {
+                        console.log('otp reset');
+                    }
+                });
                 resolve(result);
             }
         });
