@@ -1,6 +1,7 @@
 const dbMysql = require('../database/mySql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { otpGenerator } = require('../helper/transporter');
 
 const registerUser = (data) => {
     const checkUser = `SELECT * FROM users WHERE email = ? OR username = ?`;
@@ -131,4 +132,87 @@ const logoutUser = (token) => {
     });
 };
 
-module.exports = { registerUser, loginUser, logoutUser };
+const sendOTP = (email) => {
+    const qs = 'SELECT id, username FROM users WHERE email = ?';
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, email, (err, result) => {
+            if (err) return reject({ status: 500 });
+            if (result.length === 0) {
+                return reject({
+                    success: false,
+                    msg: 'This account does not exist',
+                    status: 401,
+                });
+            } else {
+                const otp = otpGenerator();
+                const generateOTP = 'UPDATE users SET otp=? WHERE id=?';
+                dbMysql.query(
+                    generateOTP,
+                    [otp, result[0].id],
+                    (err, result) => {
+                        if (err) {
+                            return reject({ status: 500 });
+                        } else {
+                            console.log(otp);
+                            resolve(otp);
+                        }
+                    }
+                );
+            }
+        });
+    });
+};
+
+const verifyOTP = (data) => {
+    const { email, otp } = data;
+    const qs = 'SELECT id FROM users WHERE email = ? && otp = ?';
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, [email, otp], (err, result) => {
+            if (err) {
+                return reject({ status: 500 });
+            } else if (result.length === 0) {
+                return reject({
+                    success: false,
+                    msg: 'You may have entered the wrong info. Please check and try again',
+                    status: 401,
+                });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+const resetPassword = (id, password) => {
+    const qs = 'UPDATE users SET password = ? WHERE id = ?';
+
+    return new Promise((resolve, reject) => {
+        bcrypt.hash(password, 10, (err, encryptedPass) => {
+            if (err) return reject({ status: 500 });
+
+            password = encryptedPass;
+            dbMysql.query(qs, [password, id], (err, result) => {
+                if (err) {
+                    return reject({ status: 500 });
+                } else if (result.length === 0) {
+                    return reject({
+                        success: false,
+                        msg: 'You may have entered the wrong info. Please check and try again',
+                        status: 401,
+                    });
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    });
+};
+
+module.exports = {
+    registerUser,
+    loginUser,
+    logoutUser,
+    sendOTP,
+    verifyOTP,
+    resetPassword,
+};
