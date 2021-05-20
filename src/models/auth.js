@@ -146,6 +146,7 @@ const sendOTP = (email) => {
             } else {
                 const otp = otpGenerator();
                 const generateOTP = 'UPDATE users SET otp=? WHERE id=?';
+                const data = { otp: otp, idUser: result[0].id };
                 dbMysql.query(
                     generateOTP,
                     [otp, result[0].id],
@@ -154,7 +155,7 @@ const sendOTP = (email) => {
                             return reject({ status: 500 });
                         } else {
                             console.log(otp);
-                            resolve(otp);
+                            resolve(data);
                         }
                     }
                 );
@@ -164,10 +165,10 @@ const sendOTP = (email) => {
 };
 
 const verifyOTP = (data) => {
-    const { email, otp } = data;
-    const qs = 'SELECT id FROM users WHERE email = ? && otp = ?';
+    const { id, otp } = data;
+    const qs = 'SELECT id FROM users WHERE id = ? && otp = ?';
     return new Promise((resolve, reject) => {
-        dbMysql.query(qs, [email, otp], (err, result) => {
+        dbMysql.query(qs, [id, otp], (err, result) => {
             if (err) {
                 return reject({ status: 500 });
             } else if (result.length === 0) {
@@ -178,7 +179,7 @@ const verifyOTP = (data) => {
                 });
             } else {
                 const resetOTP = 'UPDATE users SET otp="" WHERE id=?';
-                dbMysql.query(resetOTP, result[0].id, (err, result) => {
+                dbMysql.query(resetOTP, id, (err, result) => {
                     if (err) {
                         return reject({ status: 500 });
                     } else {

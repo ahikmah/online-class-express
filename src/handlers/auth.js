@@ -67,16 +67,16 @@ const sendOTP = (req, res) => {
     const { email } = req.body;
     authModel
         .sendOTP(email)
-        .then((result) => {
-            if (result) {
-                console.log(result);
+        .then(({ otp, idUser }) => {
+            if ({ otp, idUser }) {
+                console.log({ otp, idUser });
                 let mailOptions = {
                     to: email,
                     subject: 'Online Class Authentication',
                     html:
-                        '<h6>To authenticate, please use the following One Time Password (OTP):</h6>' +
-                        `<h1>${result}</h1>` +
-                        '<h6>Do not share this OTP with anyone. We take your account security very seriously.</h6>',
+                        '<p>To authenticate, please use the following One Time Password (OTP):</p>' +
+                        `<h1>${otp}</h1>` +
+                        '<p>Do not share this OTP with anyone. We take your account security very seriously.</p>',
                 };
                 transporter.sendMail(mailOptions, (error, info) => {
                     if (error) {
@@ -91,6 +91,7 @@ const sendOTP = (req, res) => {
                 writeResponse(res, null, 200, {
                     success: 'true',
                     message: `OTP successfully sent to ${email}`,
+                    id: idUser,
                 });
             }
         })
@@ -107,7 +108,6 @@ const verifyOTP = (req, res) => {
                 writeResponse(res, null, 200, {
                     success: 'true',
                     message: `OTP has been verified`,
-                    idUser: result[0].id,
                 });
             }
         })
