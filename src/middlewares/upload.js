@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
     },
 });
 
-const maxSize = 2 * 1000 * 1000;
+const maxSize = 10 * 1000 * 1000;
 
 const fileFilter = (req, file, cb) => {
     const acceptedFileType = /jpg|jpeg|gif|png/;
