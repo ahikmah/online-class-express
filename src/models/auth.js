@@ -172,48 +172,102 @@ const verifyOTP = (data) => {
             if (err) {
                 return reject({ status: 500 });
             } else if (result.length === 0) {
+                console.log(result);
                 return reject({
                     success: false,
-                    msg: 'You may have entered the wrong info. Please check and try again',
+                    msg: 'Invalid OTP. Please double check and try again',
                     status: 401,
                 });
             } else {
-                const resetOTP = 'UPDATE users SET otp="" WHERE id=?';
-                dbMysql.query(resetOTP, id, (err, result) => {
-                    if (err) {
-                        return reject({ status: 500 });
-                    } else {
-                        console.log('otp reset');
-                    }
-                });
                 resolve(result);
             }
         });
     });
 };
 
-const resetPassword = (id, password) => {
-    const qs = 'UPDATE users SET password = ? WHERE id = ?';
-
+const resetPassword = (id, otp, password, oldPassword) => {
+    const checkPassword = 'SELECT * FROM users WHERE id = ?';
+    const qs = otp
+        ? 'UPDATE users SET password = ? WHERE otp = ?'
+        : 'UPDATE users SET password = ? WHERE id = ?';
     return new Promise((resolve, reject) => {
-        bcrypt.hash(password, 10, (err, encryptedPass) => {
-            if (err) return reject({ status: 500 });
+        oldPassword
+            ? dbMysql.query(checkPassword, id, (err, result) => {
+                  if (err) {
+                      console.log('lhoo');
+                      return reject({ status: 500 });
+                  } else {
+                      bcrypt.compare(
+                          oldPassword,
+                          result[0].password,
+                          (err, isValid) => {
+                              if (err) return reject(err);
+                              if (!isValid) {
+                                  return reject({
+                                      status: 401,
+                                      success: false,
+                                      msg: 'Your password is wrong',
+                                  });
+                              }
+                              bcrypt.hash(
+                                  password,
+                                  10,
+                                  (err, encryptedPass) => {
+                                      if (err) return reject({ status: 500 });
 
-            password = encryptedPass;
-            dbMysql.query(qs, [password, id], (err, result) => {
-                if (err) {
-                    return reject({ status: 500 });
-                } else if (result.length === 0) {
-                    return reject({
-                        success: false,
-                        msg: 'You may have entered the wrong info. Please check and try again',
-                        status: 401,
-                    });
-                } else {
-                    resolve(result);
-                }
-            });
-        });
+                                      password = encryptedPass;
+                                      dbMysql.query(
+                                          qs,
+                                          [password, id],
+                                          (err, result) => {
+                                              if (err) {
+                                                  return reject({
+                                                      status: 500,
+                                                  });
+                                              } else {
+                                                  resolve(result);
+                                              }
+                                          }
+                                      );
+                                  }
+                              );
+                          }
+                      );
+                  }
+              })
+            : bcrypt.hash(password, 10, (err, encryptedPass) => {
+                  if (err) return reject({ status: 500 });
+
+                  password = encryptedPass;
+                  dbMysql.query(qs, [password, otp], (err, result) => {
+                      if (err) {
+                          return reject({
+                              status: 500,
+                          });
+                      } else if (result.affectedRows < 1) {
+                          return reject({
+                              success: false,
+                              msg: 'Invalid OTP. Please check and try again',
+                              status: 401,
+                          });
+                      } else {
+                          console.log('gaes', result);
+                          const resetOTP =
+                              'UPDATE users SET otp="" WHERE otp=?';
+                          dbMysql.query(resetOTP, otp, (err, result) => {
+                              if (err) {
+                                  return reject({ status: 500 });
+                              } else if (result.affectedRows < 1) {
+                                  return reject({ status: 500 });
+                              } else {
+                                  //   console.log('res', result);
+                                  console.log('otp reset');
+                                  resolve(result);
+                              }
+                          });
+                      }
+                  });
+              });
     });
 };
 

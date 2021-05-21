@@ -91,7 +91,7 @@ const sendOTP = (req, res) => {
                 writeResponse(res, null, 200, {
                     success: 'true',
                     message: `OTP successfully sent to ${email}`,
-                    id: idUser,
+                    idUser: 12,
                 });
             }
         })
@@ -103,7 +103,6 @@ const verifyOTP = (req, res) => {
     authModel
         .verifyOTP(data)
         .then((result) => {
-            console.log(result);
             if (result) {
                 writeResponse(res, null, 200, {
                     success: 'true',
@@ -112,20 +111,19 @@ const verifyOTP = (req, res) => {
             }
         })
         .catch((err) => {
-            writeError(res, 500, {
-                success: 'false',
-                message: `Something wrong`,
+            writeError(res, err.status, {
+                success: err.success,
+                message: err.msg,
             });
-            console.log(err);
         });
 };
 
 const resetPassword = (req, res) => {
-    const { id, password } = req.body;
+    const { id, otp, password, oldPassword } = req.body;
     authModel
-        .resetPassword(id, password)
+        .resetPassword(id, otp, password, oldPassword)
         .then((result) => {
-            console.log(result);
+            // console.log(result);
             if (result) {
                 writeResponse(res, null, 200, {
                     success: 'true',
@@ -134,11 +132,10 @@ const resetPassword = (req, res) => {
             }
         })
         .catch((err) => {
-            writeError(res, 500, {
-                success: 'false',
-                message: `Something wrong`,
+            writeError(res, err.status, {
+                success: err.success,
+                message: err.msg,
             });
-            console.log(err);
         });
 };
 module.exports = {
