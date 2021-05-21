@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const updateUserById = (data, idUser) => {
-    const checkUser = `SELECT * FROM users WHERE email = ? OR username = ?`;
+    const checkUser = `SELECT * FROM users WHERE email = ? OR username = ? OR phone=?`;
     const qs = 'UPDATE users SET ? WHERE id = ? ';
     const updated = [data, idUser];
     console.log(data);
@@ -33,7 +33,7 @@ const updateUserById = (data, idUser) => {
               })
             : dbMysql.query(
                   checkUser,
-                  [data.email, data.username],
+                  [data.email, data.username, data.phone],
                   (err, result) => {
                       if (err) {
                           reject({ status: 500 });
@@ -51,6 +51,13 @@ const updateUserById = (data, idUser) => {
                                       success: false,
                                       conflict: 'email',
                                       msg: 'Email is already taken',
+                                      status: 409,
+                                  });
+                              } else if (data.phone === result[0].phone) {
+                                  reject({
+                                      success: false,
+                                      conflict: 'phone',
+                                      msg: 'Phone number is already taken',
                                       status: 409,
                                   });
                               }
