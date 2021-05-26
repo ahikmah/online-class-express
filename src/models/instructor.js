@@ -16,7 +16,7 @@ const getSpesificMemberProgress = (idCourse, idUser) => {
 };
 
 const getMyCourse = (idUser, pages) => {
-    const qs = `SELECT c.id as course_id, c.name as course_name, ct.name as category, c.description, c.objectives, c.requirements, DATE_FORMAT(c.schedule, '%W') as day, c.start_time, c.end_time, COUNT(sc.student_id) AS num_of_student  FROM courses c JOIN student_course sc ON c.id = sc.course_id  JOIN categories ct ON c.category_id = ct.id WHERE c.instructor_id=? GROUP BY c.name UNION SELECT c.id as course_id, c.name as course_name, ct.name as category, c.description, c.objectives, c.requirements, DATE_FORMAT(c.schedule, '%W') as day, c.start_time, c.end_time, 0 as num_of_student FROM courses c JOIN categories ct ON c.category_id = ct.id WHERE c.instructor_id=? && c.name NOT IN (SELECT c.name FROM courses c JOIN student_course sc ON c.id = sc.course_id)`;
+    const qs = `SELECT c.id as course_id, c.name as course_name, ct.name as category, c.description, c.objectives, c.requirements, DATE_FORMAT(c.schedule, '%W') as day, c.start_time, c.end_time, 0 as num_of_student FROM courses c JOIN categories ct ON c.category_id = ct.id WHERE c.instructor_id=? && c.name NOT IN (SELECT c.name FROM courses c JOIN student_course sc ON c.id = sc.course_id) UNION SELECT c.id as course_id, c.name as course_name, ct.name as category, c.description, c.objectives, c.requirements, DATE_FORMAT(c.schedule, '%W') as day, c.start_time, c.end_time, COUNT(sc.student_id) AS num_of_student  FROM courses c JOIN student_course sc ON c.id = sc.course_id  JOIN categories ct ON c.category_id = ct.id WHERE c.instructor_id=? GROUP BY c.name `;
 
     const paginate = ' LIMIT ? OFFSET ?';
 
