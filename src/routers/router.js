@@ -4,6 +4,7 @@ const coursesRouter = require('./course');
 const instructorRouter = require('./instructor');
 const studentRouter = require('./student');
 const authRouter = require('./auth');
+const messageRouter = require('./message');
 ////////////////////////////////////
 
 Router.use((req, res, next) => {
@@ -36,5 +37,8 @@ Router.use('/data/instructor', instructorRouter);
 
 // STUDENT
 Router.use('/data/student', studentRouter);
+
+// MESSAGE
+Router.use('/message', messageRouter);
 
 module.exports = Router;
