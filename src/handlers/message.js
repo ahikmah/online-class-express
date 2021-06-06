@@ -31,7 +31,45 @@ const createRoom = (req, res) => {
             writeError(res, 500, err);
         });
 };
+
+const sendMessage = (req, res) => {
+    const data = { ...req.body };
+    messageModel
+        .sendMessage(data)
+        .then((result) => {
+            writeResponse(res, null, 200, {
+                success: 'true',
+                message: 'Message stored!',
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+            writeError(res, 500, err);
+        });
+};
+
+const messageHistory = (req, res) => {
+    const { room_id } = req.params;
+    messageModel
+        .messageHistory(room_id)
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, err.status, {
+                success: err.success,
+                conflict: err.conflict,
+                message: err.msg,
+            });
+        });
+};
+
+const messageList = () => {};
+
 module.exports = {
     getAllUser,
     createRoom,
+    sendMessage,
+    messageHistory,
+    messageList,
 };

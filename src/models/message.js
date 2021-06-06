@@ -45,7 +45,40 @@ const createRoom = (data) => {
     });
 };
 
+const sendMessage = (data) => {
+    const qs = 'INSERT INTO messages SET ?';
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, data, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject({ status: 500 });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+const messageHistory = (room_id) => {
+    const qs = 'SELECT * FROM messages WHERE room_id = ?';
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, room_id, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject({ status: 500 });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+const messageList = () => {};
+
 module.exports = {
     getAllUser,
     createRoom,
+    sendMessage,
+    messageHistory,
+    messageList,
 };
