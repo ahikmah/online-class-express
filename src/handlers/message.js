@@ -16,6 +16,22 @@ const getAllUser = (req, res) => {
         });
 };
 
+const createRoom = (req, res) => {
+    const data = req.body;
+    messageModel
+        .createRoom(data)
+        .then((result) => {
+            console.log(result);
+            writeResponse(res, null, 200, {
+                success: true,
+                message: 'Room has been created',
+            });
+        })
+        .catch((err) => {
+            writeError(res, 500, err);
+        });
+};
 module.exports = {
     getAllUser,
+    createRoom,
 };
