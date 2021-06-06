@@ -77,7 +77,7 @@ const messageHistory = (room_id) => {
 
 const messageList = (user_id) => {
     const roomSelect =
-        'SELECT room_id, sender_id, receiver_id  FROM messages WHERE sender_id = ? OR receiver_id = ? GROUP BY room_id ORDER BY timestamp DESC';
+        'SELECT id, room_id, sender_id, receiver_id  FROM messages WHERE sender_id = ? OR receiver_id = ? GROUP BY room_id';
     let final = {};
     return new Promise((resolve, reject) => {
         dbMysql.query(roomSelect, [user_id, user_id], (err, data) => {
@@ -100,8 +100,16 @@ const messageList = (user_id) => {
                                     ...final[index],
                                     ...result[0],
                                 });
-                                if (index === array.length - 1)
+                                if (index === array.length - 1) {
+                                    finalResult.sort((a, b) =>
+                                        a.timestamp > b.timestamp
+                                            ? -1
+                                            : a.timestamp < b.timestamp
+                                            ? 1
+                                            : 0
+                                    );
                                     resolve(finalResult);
+                                }
                             }
                         }
                     )
