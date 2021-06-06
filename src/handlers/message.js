@@ -64,7 +64,21 @@ const messageHistory = (req, res) => {
         });
 };
 
-const messageList = () => {};
+const messageList = (req, res) => {
+    const user_id = req.token__userid;
+    messageModel
+        .messageList(user_id)
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, err.status, {
+                success: err.success,
+                conflict: err.conflict,
+                message: err.msg,
+            });
+        });
+};
 
 module.exports = {
     getAllUser,

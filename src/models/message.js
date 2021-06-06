@@ -1,5 +1,7 @@
 const dbMysql = require('../database/mySql');
 const mysql = require('mysql');
+const { CLIEngine } = require('eslint');
+const db = require('../database/mySql');
 
 // student only (for now)
 const getAllUser = () => {
@@ -73,7 +75,41 @@ const messageHistory = (room_id) => {
     });
 };
 
-const messageList = () => {};
+const messageList = (user_id) => {
+    const roomSelect =
+        'SELECT room_id, sender_id, receiver_id  FROM messages WHERE sender_id = ? OR receiver_id = ? GROUP BY room_id ORDER BY timestamp DESC';
+    let final = {};
+    return new Promise((resolve, reject) => {
+        dbMysql.query(roomSelect, [user_id, user_id], (err, data) => {
+            if (err) {
+                reject({ status: 500 });
+            } else {
+                final = { ...data };
+                let finalResult = [];
+                const lastMessage =
+                    'SELECT content as last_message, timestamp FROM messages WHERE room_id = ? ORDER BY timestamp DESC LIMIT 1';
+                data.map((item, index, array) =>
+                    dbMysql.query(
+                        lastMessage,
+                        [item.room_id],
+                        (err, result) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                finalResult.push({
+                                    ...final[index],
+                                    ...result[0],
+                                });
+                                if (index === array.length - 1)
+                                    resolve(finalResult);
+                            }
+                        }
+                    )
+                );
+            }
+        });
+    });
+};
 
 module.exports = {
     getAllUser,
