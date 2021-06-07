@@ -36,6 +36,11 @@ io.on('connection', (socket) => {
         socket.join(room);
         cb({ status: true });
     });
+
+    socket.on('group-room', (room, cb) => {
+        socket.join(room);
+        cb({ status: true });
+    });
 });
 
 const jsonParser = express.json();
