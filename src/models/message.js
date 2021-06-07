@@ -100,6 +100,7 @@ const messageList = (user_id) => {
                                 reject(err);
                             } else {
                                 messageList.push({ ...message[0] });
+                                console.log(array.length);
                                 if (index === array.length - 1) {
                                     console.log(messageList);
                                     let finalResult = [];
@@ -113,10 +114,14 @@ const messageList = (user_id) => {
                                                 if (err) {
                                                     reject(err);
                                                 } else {
-                                                    finalResult.push({
-                                                        ...messageList[index],
-                                                        ...result[0],
-                                                    });
+                                                    if (result.length > 0) {
+                                                        finalResult.push({
+                                                            ...messageList[
+                                                                index
+                                                            ],
+                                                            ...result[0],
+                                                        });
+                                                    }
                                                     if (
                                                         index ===
                                                         array.length - 1
