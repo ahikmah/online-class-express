@@ -80,10 +80,27 @@ const messageList = (req, res) => {
         });
 };
 
+const roomInfo = (req, res) => {
+    const { room_id } = req.params;
+    messageModel
+        .roomInfo(room_id)
+        .then((result) => {
+            writeResponse(res, null, 200, result);
+        })
+        .catch((err) => {
+            writeError(res, err.status, {
+                success: err.success,
+                conflict: err.conflict,
+                message: err.msg,
+            });
+        });
+};
+
 module.exports = {
     getAllUser,
     createRoom,
     sendMessage,
     messageHistory,
     messageList,
+    roomInfo,
 };

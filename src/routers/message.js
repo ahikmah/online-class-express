@@ -6,6 +6,7 @@ const {
     sendMessage,
     messageHistory,
     messageList,
+    roomInfo,
 } = require('../handlers/message');
 
 // GET LIST OF STUDENT ACCOUNT
@@ -22,5 +23,8 @@ Router.get('/history/:room_id', authorize.authUser, messageHistory);
 
 // Get message list by user id
 Router.get('/list', authorize.authUser, messageList);
+
+// Get message list by user id
+Router.get('/room/:room_id', authorize.authUser, roomInfo);
 
 module.exports = Router;

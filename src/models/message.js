@@ -155,50 +155,19 @@ const messageList = (user_id) => {
     });
 };
 
-// const messageList2 = (user_id) => {
-//     const roomSelect =
-//         'SELECT id, room_id, sender_id, receiver_id  FROM messages WHERE sender_id = ? OR receiver_id = ? GROUP BY room_id';
-//     // const roomSelect = 'SELECT room_id FROM chat_rooms WHERE member_id = ?';
-//     let final = {};
-//     return new Promise((resolve, reject) => {
-//         dbMysql.query(roomSelect, [user_id, user_id], (err, data) => {
-//             if (err) {
-//                 reject({ status: 500 });
-//             } else {
-//                 final = { ...data };
-//                 let finalResult = [];
-//                 const lastMessage =
-//                     'SELECT content as last_message, timestamp FROM messages WHERE room_id = ? ORDER BY timestamp DESC LIMIT 1';
-//                 data.map((item, index, array) =>
-//                     dbMysql.query(
-//                         lastMessage,
-//                         [item.room_id],
-//                         (err, result) => {
-//                             if (err) {
-//                                 reject(err);
-//                             } else {
-//                                 finalResult.push({
-//                                     ...final[index],
-//                                     ...result[0],
-//                                 });
-//                                 if (index === array.length - 1) {
-//                                     finalResult.sort((a, b) =>
-//                                         a.timestamp > b.timestamp
-//                                             ? -1
-//                                             : a.timestamp < b.timestamp
-//                                             ? 1
-//                                             : 0
-//                                     );
-//                                     resolve(finalResult);
-//                                 }
-//                             }
-//                         }
-//                     )
-//                 );
-//             }
-//         });
-//     });
-// };
+const roomInfo = (room_id) => {
+    const qs = 'SELECT COUNT(*) as count FROM chat_rooms WHERE room_id = ? ';
+    return new Promise((resolve, reject) => {
+        dbMysql.query(qs, room_id, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject({ status: 500 });
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
 
 module.exports = {
     getAllUser,
@@ -206,4 +175,5 @@ module.exports = {
     sendMessage,
     messageHistory,
     messageList,
+    roomInfo,
 };
