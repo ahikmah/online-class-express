@@ -90,7 +90,7 @@ const messageList = (user_id) => {
                 console.log(rooms);
                 let messageList = [];
                 const dataMessage =
-                    'SELECT id, room_id, sender_id, receiver_id  FROM messages WHERE room_id = ? GROUP BY room_id';
+                    'SELECT id, room_id  FROM messages WHERE room_id = ? GROUP BY room_id';
                 rooms.map((item, index, array) => {
                     dbMysql.query(
                         dataMessage,
@@ -105,7 +105,7 @@ const messageList = (user_id) => {
                                     console.log(messageList);
                                     let finalResult = [];
                                     const lastMessage =
-                                        'SELECT content as last_message, timestamp FROM messages WHERE room_id = ? ORDER BY timestamp DESC LIMIT 1';
+                                        'SELECT content as last_message, sender_id, receiver_id, timestamp FROM messages WHERE room_id = ? ORDER BY timestamp DESC LIMIT 1';
                                     messageList.map((item, index, array) =>
                                         dbMysql.query(
                                             lastMessage,
